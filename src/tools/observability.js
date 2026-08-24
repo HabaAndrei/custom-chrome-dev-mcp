@@ -1,0 +1,14 @@
+// What the page did, not just what it looks like: console, network, and page-context
+// evaluation. Capture begins when the debugger attaches, so reload after the first
+// CDP call to catch load-time activity.
+import { z } from "zod";
+import { definePassthrough } from "./schemas.js";
+
+export function registerObservabilityTools(server) {
+  const tool = definePassthrough(server);
+
+  tool("getConsole", "Return buffered console messages, warnings, and errors for the tab. Capture begins when the debugger attaches (a realClick/evaluate/getConsole call), so reload the page after attaching to catch load-time logs. Filter by level; clear:true empties the buffer.", { level: z.string().optional(), limit: z.number().optional(), clear: z.boolean().optional() });
+  tool("listNetworkRequests", "Return buffered network requests for the tab (method, url, status, type, timing). Capture begins when the debugger attaches. Filter by urlContains, status, or failedOnly.", { urlContains: z.string().optional(), status: z.number().optional(), failedOnly: z.boolean().optional(), limit: z.number().optional() });
+  tool("getNetworkRequest", "Return details for one buffered request by requestId (from listNetworkRequests). includeBody:true also fetches the response body (truncated).", { requestId: z.string(), includeBody: z.boolean().optional() });
+  tool("evaluate", "Evaluate a JS expression in the PAGE's real JS context via CDP (bypasses the content-script CSP that blocks eval), await promises, and return the JSON-stringified result. Not available on chrome:// pages.", { expression: z.string() });
+}
