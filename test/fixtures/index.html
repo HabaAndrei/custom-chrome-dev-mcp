@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Custom Chrome Dev MCP — Fixture Page</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 18px; background: #0e141c; color: #e7ecf1; }
+  button, input, select, textarea { margin: 4px; font-size: 15px; }
+  #hovered { display: none; }
+  #drag { width: 64px; height: 64px; background: #2dd4bf; border-radius: 8px; }
+  #drop { width: 220px; height: 90px; border: 2px dashed #2dd4bf; margin-top: 8px; }
+  #late { display: none; }
+  .spacer { height: 420px; }
+  .tall { height: 1500px; }
+</style>
+</head>
+<body>
+  <h1 id="title">Fixture Page</h1>
+  <a id="lnk" href="/next">Go Next</a>
+
+  <!-- text entry: plain input, a second input for trusted-input tests, textarea, rich text -->
+  <input id="inp" name="q" value="">
+  <input id="fin" name="f" value="">
+  <textarea id="ta"></textarea>
+  <div id="ce" contenteditable="true">edit</div>
+
+  <!-- same-origin child document, for frameId targeting -->
+  <iframe id="if1" src="/frame" title="inner frame"></iframe>
+
+  <select id="sel">
+    <option value="a">Alpha</option>
+    <option value="b">Beta</option>
+  </select>
+
+  <label><input type="checkbox" id="chk"> agree</label>
+
+  <form id="frm"><input name="x"><button type="submit">Send</button></form>
+  <button id="btn">Click Me</button>
+  <div id="out"></div>
+  <div id="out2"></div>
+
+  <div id="hoverbox">hover me<div id="hovered">shown</div><div id="hoverout"></div></div>
+
+  <div id="drag"></div>
+  <div class="spacer"></div>
+  <div id="drop">drop here</div>
+
+  <input type="file" id="file">
+
+  <button id="dlgbtn">Confirm</button>
+  <div id="dlgout"></div>
+
+  <!-- appears after a delay, so waitForSelector has something real to wait on -->
+  <div id="late"></div>
+
+  <div class="tall"></div>
+  <div id="bottom">BOTTOM</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  // Counters and an event log, NOT just final text. A handler that runs twice leaves
+  // the same textContent behind as one that runs once, which is exactly how a real
+  // double-fire bug hid from this suite until a test counted invocations instead.
+  window.__clicks = 0;
+  window.__events = [];
+  window.__keydowns = [];
+  window.__moves = 0;
+
+  for (const type of ["pointerdown", "mousedown", "pointerup", "mouseup", "click"]) {
+    $("btn").addEventListener(type, (e) => {
+      window.__events.push({ type: e.type, isTrusted: e.isTrusted, buttons: e.buttons });
+    });
+  }
+
+  $("btn").addEventListener("click", () => { window.__clicks++; $("out").textContent = "clicked"; });
+
+  // Per-keystroke listener: realType must produce one of these per character, which
+  // Input.insertText never did.
+  $("fin").addEventListener("keydown", (e) => {
+    window.__keydowns.push({ key: e.key, isTrusted: e.isTrusted });
+  });
+
+  // Drag needs to observe motion between press and release, not one teleport.
+  $("drag").addEventListener("mousedown", () => { window.__moves = 0; });
+  document.addEventListener("mousemove", (e) => { if (e.buttons === 1) window.__moves++; });
+  $("frm").addEventListener("submit", (e) => { e.preventDefault(); $("out2").textContent = "submitted"; });
+  $("hoverbox").addEventListener("mouseover", () => { $("hoverout").textContent = "hovered"; });
+  $("dlgbtn").addEventListener("click", () => { $("dlgout").textContent = confirm("ok?") ? "confirmed" : "cancelled"; });
+  $("file").addEventListener("change", (e) => { window.__files = e.target.files.length; });
+
+  let dragging = false;
+  $("drag").addEventListener("mousedown", () => { dragging = true; });
+  document.addEventListener("mouseup", () => {
+    if (!dragging) return;
+    $("drop").textContent = "dropped";
+    dragging = false;
+  });
+
+  // Deferred element — waitForSelector must actually wait, not find it immediately.
+  const revealLate = () => setTimeout(() => {
+    const el = $("late");
+    el.style.display = "block";
+    el.textContent = "LATE";
+  }, 600);
+  revealLate();
+
+  /**
+   * Restore the page to its initial state. The runner calls this before every
+   * browser test, so tests never inherit another test's mutations.
+   */
+  window.__reset = () => {
+    window.__clicks = 0;
+    window.__events = [];
+    window.__keydowns = [];
+    window.__moves = 0;
+    for (const id of ["out", "out2", "hoverout", "dlgout"]) $(id).textContent = "";
+    for (const id of ["inp", "fin", "ta"]) $(id).value = "";
+    $("ce").textContent = "edit";
+    $("sel").value = "a";
+    $("chk").checked = false;
+    $("drop").textContent = "drop here";
+    $("late").style.display = "none";
+    $("late").textContent = "";
+    delete window.__files;
+    dragging = false;
+    window.scrollTo(0, 0);
+    revealLate();
+    return "reset";
+  };
+})();
+</script>
+</body>
+</html>
