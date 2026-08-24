@@ -1,0 +1,23 @@
+{
+  "name": "custom-chrome-dev-mcp",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-only MCP server that drives Chrome like a human, via a companion extension.",
+  "main": "./src/server.js",
+  "bin": {
+    "custom-chrome-dev-mcp": "./bin/custom-chrome-dev-mcp.js"
+  },
+  "scripts": {
+    "start": "node ./bin/custom-chrome-dev-mcp.js",
+    "hub": "node ./src/hub.js",
+    "test": "node ./test/run.mjs --lane=offline",
+    "test:browser": "node ./test/run.mjs --lane=browser",
+    "test:all": "node ./test/run.mjs",
+    "test:list": "node ./test/run.mjs --list"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.8.0",
+    "ws": "^8.18.1"
+  }
+}

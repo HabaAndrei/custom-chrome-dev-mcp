@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Logs & debug output
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data / sockets
+*.sock
+custom-chrome-dev-mcp-*.sock
+*.pid
+
+# Captured screenshots / recordings
+captures/
+
+# Secrets & keys
+# The extension signing key must never be committed — keep it outside the repo.
+*.pem
+*.pub.b64
+.env
+.env.*
+!.env.example
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# Backup / temp files
+*.bak
+*.tmp
