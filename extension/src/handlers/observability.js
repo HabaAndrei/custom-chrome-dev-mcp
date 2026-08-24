@@ -1,7 +1,7 @@
 // Mirrors src/tools/observability.js on the server.
 //
 // The buffers only fill while the debugger is attached, so every handler attaches
-// first — that also means a page loaded before the first attach has no history here.
+// first - that also means a page loaded before the first attach has no history here.
 import { resolveTab } from "../tabs.js";
 import { cdp, ensureAttached } from "../cdp/session.js";
 import { getConsoleEntries, getNetworkRecords, resetConsole } from "../cdp/buffers.js";
@@ -11,7 +11,7 @@ const DEFAULT_LIMIT = 100;
 const BODY_LIMIT = 5000;
 const BASE64_BODY_LIMIT = 2000;
 
-const EMPTY_NOTE = "empty — capture starts when the debugger attaches; reload the page after attaching to capture load-time logs";
+const EMPTY_NOTE = "empty - capture starts when the debugger attaches; reload the page after attaching to capture load-time logs";
 
 export const observabilityHandlers = {
   async getConsole(a = {}) {

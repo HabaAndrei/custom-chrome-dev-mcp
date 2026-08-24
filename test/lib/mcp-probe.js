@@ -2,7 +2,7 @@
 //
 // The offline lane used to be limited to grepping source files. With the SDK's
 // in-memory transport we can complete an actual initialize + tools/list handshake
-// against src/server.js — so the offline tests assert on the true published surface
+// against src/server.js - so the offline tests assert on the true published surface
 // (names, descriptions, JSON Schemas) instead of on what the source looks like.
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -12,7 +12,7 @@ let cached = null;
 
 /**
  * Connect a client to a freshly built server and list its tools.
- * Cached — the surface is static, and every offline test wants the same view of it.
+ * Cached - the surface is static, and every offline test wants the same view of it.
  *
  * @returns {Promise<{tools: object[], byName: Map<string, object>, names: string[]}>}
  */

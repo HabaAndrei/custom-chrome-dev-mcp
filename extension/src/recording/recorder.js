@@ -74,5 +74,5 @@ export async function stopRecording() {
 function setBadge(on) {
   chrome.action.setBadgeText({ text: on ? "REC" : "" });
   if (on) chrome.action.setBadgeBackgroundColor({ color: "#d00000" });
-  chrome.action.setTitle({ title: on ? "Custom-chrome-dev-mcp — recording tab (MCP)" : "Custom-chrome-dev-mcp" });
+  chrome.action.setTitle({ title: on ? "Custom-chrome-dev-mcp - recording tab (MCP)" : "Custom-chrome-dev-mcp" });
 }

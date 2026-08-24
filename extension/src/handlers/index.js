@@ -20,7 +20,7 @@ export const HANDLER_GROUPS = {
 };
 
 // Flattened lookup. Spreading means a name defined in two groups would silently win
-// in the last one — test/verify-all.mjs asserts that never happens.
+// in the last one - test/verify-all.mjs asserts that never happens.
 const handlers = Object.assign({}, ...Object.values(HANDLER_GROUPS));
 
 /** Names of every tool this extension can service. */

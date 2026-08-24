@@ -1,4 +1,4 @@
-// Covers src/tools/tabs.js — tab enumeration, focus, pinning, frames.
+// Covers src/tools/tabs.js - tab enumeration, focus, pinning, frames.
 import { defineSuite } from "../lib/runner.js";
 import { contains, equals, fail, isArray, isAtLeast } from "../lib/assert.js";
 

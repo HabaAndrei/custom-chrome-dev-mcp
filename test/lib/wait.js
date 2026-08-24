@@ -1,6 +1,6 @@
 // Polling helpers that replace fixed sleeps.
 //
-// The old suite was littered with `await sleep(500)` — slow when the page was ready in
+// The old suite was littered with `await sleep(500)` - slow when the page was ready in
 // 20ms, and flaky when it needed 600. These poll for the condition instead: they
 // return as soon as it holds and fail with a real message when it never does.
 

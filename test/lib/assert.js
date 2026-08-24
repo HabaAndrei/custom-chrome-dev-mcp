@@ -12,7 +12,7 @@ const show = (v) => {
 
 export const fail = (message) => { throw new AssertionError(message); };
 
-/** Strict-ish equality after string coercion — page values arrive as strings. */
+/** Strict-ish equality after string coercion - page values arrive as strings. */
 export function equals(actual, expected, what = "value") {
   if (String(actual) !== String(expected))
     fail(`${what}: expected ${show(expected)}, got ${show(actual)}`);
@@ -56,7 +56,7 @@ export async function rejects(fn, pattern, what = "call") {
   } catch (err) {
     message = err?.message ?? String(err);
     if (pattern && !new RegExp(pattern, "i").test(message))
-      fail(`${what}: rejected with the wrong error — wanted /${pattern}/i, got ${show(message)}`);
+      fail(`${what}: rejected with the wrong error - wanted /${pattern}/i, got ${show(message)}`);
     return message;
   }
   fail(`${what}: expected a rejection${pattern ? ` matching /${pattern}/i` : ""}, but it resolved`);

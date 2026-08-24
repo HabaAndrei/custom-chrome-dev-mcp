@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "description": "Local-only MCP server that drives Chrome like a human, via a companion extension.",
+  "license": "MIT",
   "main": "./src/server.js",
   "bin": {
     "custom-chrome-dev-mcp": "./bin/custom-chrome-dev-mcp.js"

@@ -1,4 +1,4 @@
-// Covers src/tools/navigation.js — URLs, history, load state.
+// Covers src/tools/navigation.js - URLs, history, load state.
 import { defineSuite } from "../lib/runner.js";
 import { contains, equals, isTrue, rejects } from "../lib/assert.js";
 import { eventually } from "../lib/wait.js";
@@ -50,7 +50,7 @@ export default defineSuite({
       await settleAt("page=2");
 
       // Wait for a POSITIVE url, not merely the absence of page=2. Mid-navigation the
-      // tab reports an empty url, which satisfies a negative check instantly — so the
+      // tab reports an empty url, which satisfies a negative check instantly - so the
       // old assertion let `forward` fire before `back` had committed, and Chrome
       // answered "Cannot find a next page in history".
       await call("back", { tabId: tab });

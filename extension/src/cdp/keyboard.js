@@ -63,7 +63,7 @@ function codeForChar(ch) {
  * character carried on `text` so the page also gets keypress + input.
  *
  * The alternative, Input.insertText, drops the entire string in at once and emits no
- * key events whatsoever — so search-as-you-type boxes, character counters, and
+ * key events whatsoever - so search-as-you-type boxes, character counters, and
  * per-keystroke validation never run, and the instant appearance of a fully-formed
  * value is itself one of the clearest automation tells there is.
  *

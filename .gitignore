@@ -17,7 +17,7 @@ custom-chrome-dev-mcp-*.sock
 captures/
 
 # Secrets & keys
-# The extension signing key must never be committed — keep it outside the repo.
+# The extension signing key must never be committed - keep it outside the repo.
 *.pem
 *.pub.b64
 .env

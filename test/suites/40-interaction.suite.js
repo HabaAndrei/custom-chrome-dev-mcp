@@ -1,4 +1,4 @@
-// Covers src/tools/interaction.js — the fast synthetic DOM path.
+// Covers src/tools/interaction.js - the fast synthetic DOM path.
 import { defineSuite } from "../lib/runner.js";
 import { contains, equals, isFalse, isTrue, rejects } from "../lib/assert.js";
 
@@ -23,8 +23,8 @@ export default defineSuite({
     },
 
     "click emits the full press sequence in order": async ({ call, tab, js }) => {
-      // A lone click event leaves mousedown-driven widgets — dropdowns, menus, most
-      // component libraries — completely inert.
+      // A lone click event leaves mousedown-driven widgets - dropdowns, menus, most
+      // component libraries - completely inert.
       await call("click", { selector: "#btn", tabId: tab });
       const seen = await js("window.__events.map(e => e.type).join(',')");
       contains(seen, "pointerdown,mousedown", "pointer/mouse down pair");
@@ -34,7 +34,7 @@ export default defineSuite({
 
     "click reports buttons=1 while the button is down": async ({ call, tab, js }) => {
       // A naive synthetic click leaves buttons at 0 throughout, contradicting the
-      // mousedown it is delivering — a cheap thing for a page to check.
+      // mousedown it is delivering - a cheap thing for a page to check.
       await call("click", { selector: "#btn", tabId: tab });
       equals(await js("window.__events.find(e => e.type === 'mousedown').buttons"), "1", "mousedown buttons");
       equals(await js("window.__events.find(e => e.type === 'click').buttons"), "0", "click buttons");
@@ -140,7 +140,7 @@ export default defineSuite({
     },
 
     "waitForSelector waits for a deferred element": async ({ call, tab }) => {
-      // #late appears 600ms after load — an immediate query would miss it.
+      // #late appears 600ms after load - an immediate query would miss it.
       const result = await call("waitForSelector", { selector: "#late", timeout: 5000, tabId: tab });
       isTrue(result.found ?? true, "found flag");
       return "appeared";

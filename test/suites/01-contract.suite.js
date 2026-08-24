@@ -72,7 +72,7 @@ export default defineSuite({
       const onlyTools = tools.filter((g) => !handlers.includes(g));
       const onlyHandlers = handlers.filter((g) => !tools.includes(g));
       if (onlyTools.length || onlyHandlers.length)
-        fail(`group mismatch — only in src/tools: [${onlyTools}], only in handlers: [${onlyHandlers}]`);
+        fail(`group mismatch - only in src/tools: [${onlyTools}], only in handlers: [${onlyHandlers}]`);
       return `${tools.length} groups`;
     },
 
@@ -85,7 +85,7 @@ export default defineSuite({
 
     "every tool accepts the universal tab scope": async () => {
       const { tools } = await describeToolSurface();
-      // Capture tools deliberately take only tabId — a capture has no frame or URL guard.
+      // Capture tools deliberately take only tabId - a capture has no frame or URL guard.
       const captureOnly = new Set(["screenshot", "fullPageScreenshot", "record"]);
       const offenders = tools
         .filter((t) => !captureOnly.has(t.name))

@@ -11,10 +11,10 @@ export const TARGET = {
 
 /**
  * Accepted by EVERY tool:
- *   tabId    — act on a specific tab instead of the ambient active one, so a
+ *   tabId    - act on a specific tab instead of the ambient active one, so a
  *              background tab can't hijack the action
- *   frameId  — act inside a specific frame from listFrames
- *   expectUrl — guard: refuse if the resolved tab's URL doesn't contain this
+ *   frameId  - act inside a specific frame from listFrames
+ *   expectUrl - guard: refuse if the resolved tab's URL doesn't contain this
  * Pin a tab for a whole session with useTab.
  */
 export const TAB_SCOPE = {

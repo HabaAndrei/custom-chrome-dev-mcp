@@ -12,7 +12,7 @@ import { resolveTab } from "./tabs.js";
  * @param {number} tabId
  * @param {string} op walker op name
  * @param {object} args op arguments
- * @param {number} [frameId] target a specific frame — this is what lets tools reach
+ * @param {number} [frameId] target a specific frame - this is what lets tools reach
  *   into cross-origin iframes the top document cannot script.
  */
 export async function runWalker(tabId, op, args, frameId) {

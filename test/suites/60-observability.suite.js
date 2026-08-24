@@ -1,4 +1,4 @@
-// Covers src/tools/observability.js — console, network, page-context evaluation.
+// Covers src/tools/observability.js - console, network, page-context evaluation.
 import { defineSuite } from "../lib/runner.js";
 import { contains, equals, fail, isAtLeast, rejects } from "../lib/assert.js";
 import { eventually } from "../lib/wait.js";

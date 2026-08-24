@@ -2,12 +2,12 @@
 // Test entry point.
 //
 //   node test/run.mjs                  both lanes (offline, then browser)
-//   node test/run.mjs --lane=offline   no browser needed — this is the CI gate
+//   node test/run.mjs --lane=offline   no browser needed - this is the CI gate
 //   node test/run.mjs --lane=browser   drive real Chrome via the extension
 //   node test/run.mjs --grep=fill      only tests whose suite/name matches
 //   node test/run.mjs --list           show what would run
 //
-// The browser lane binds 127.0.0.1:9876, the port the real hub owns — so stop the MCP
+// The browser lane binds 127.0.0.1:9876, the port the real hub owns - so stop the MCP
 // server first (`pkill -f src/hub.js`), then reload the extension when prompted.
 import fs from "node:fs";
 import os from "node:os";
@@ -51,7 +51,7 @@ async function loadSuites() {
 
 /**
  * Report which tools the browser lane never touched.
- * A tool with no test is a tool nobody is checking — say so out loud.
+ * A tool with no test is a tool nobody is checking - say so out loud.
  */
 function reportCoverage(invoked, log) {
   const untested = handlerNames.filter((name) => !invoked.has(name)).sort();
@@ -89,7 +89,7 @@ async function main() {
     teardown.push(fixtures.close);
 
     console.log(`\n  fixture server  ${fixtures.url}`);
-    console.log("  waiting for the extension — open chrome://extensions and click reload ↻ …");
+    console.log("  waiting for the extension - open chrome://extensions and click reload ↻ …");
 
     const extension = await connectExtension();
     teardown.push(extension.close);
@@ -108,7 +108,7 @@ async function main() {
     console.log(`  artifacts       ${context.artifacts}`);
   }
 
-  console.log(`\n  custom-chrome-dev-mcp — ${args.lanes.join(" + ")} lane${args.lanes.length > 1 ? "s" : ""}`);
+  console.log(`\n  custom-chrome-dev-mcp - ${args.lanes.join(" + ")} lane${args.lanes.length > 1 ? "s" : ""}`);
   const results = await runSuites(suites, { lanes: args.lanes, grep: args.grep, context });
 
   let coverageGap = [];
@@ -117,7 +117,7 @@ async function main() {
   const ok = report(results);
   for (const close of teardown.reverse()) await close();
 
-  // An untested tool is a failure of the suite, not a warning — but only when the full
+  // An untested tool is a failure of the suite, not a warning - but only when the full
   // browser lane ran, since --grep deliberately narrows what is exercised.
   return ok && !coverageGap.length ? 0 : 1;
 }

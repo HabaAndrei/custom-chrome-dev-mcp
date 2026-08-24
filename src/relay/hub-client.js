@@ -1,7 +1,7 @@
 // Client side of the session <-> hub link.
 //
 // The server does NOT own the WebSocket. Only one process can hold port 9876, but
-// several Claude sessions may want the same browser at once — so the socket lives in
+// several Claude sessions may want the same browser at once - so the socket lives in
 // a separate long-lived hub process (src/hub.js). Every session connects to it as a
 // client (role:"mcp"), the extension connects as role:"extension", and the hub
 // multiplexes between them. The first session to start spawns the hub detached so it
@@ -54,7 +54,7 @@ function connect() {
 
   ws.on("close", () => {
     if (socket === ws) socket = null;
-    spawnHub();                              // the hub may have died — restart it (no-op if up)
+    spawnHub();                              // the hub may have died - restart it (no-op if up)
     setTimeout(connect, RECONNECT_DELAY_MS); // then retry
   });
 
@@ -78,7 +78,7 @@ export function call(tool, args, timeoutMs = CALL_TIMEOUT_MS) {
   return new Promise((resolve, reject) => {
     if (!socket || socket.readyState !== WebSocket.OPEN) {
       return reject(new Error(
-        "browser relay not connected yet (hub starting — retry shortly; make sure Chrome + the extension are running)",
+        "browser relay not connected yet (hub starting - retry shortly; make sure Chrome + the extension are running)",
       ));
     }
 

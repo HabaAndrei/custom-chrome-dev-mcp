@@ -2,7 +2,7 @@
 //
 // These guard the properties the README promises: writes confined to the capture
 // directory, a token handshake, a minimal permission set, and an inert toolbar icon.
-// They are the reason the offline lane exists — a regression here should fail CI, not
+// They are the reason the offline lane exists - a regression here should fail CI, not
 // wait for someone to reload an extension by hand.
 import fs from "node:fs";
 import os from "node:os";
@@ -90,7 +90,7 @@ export default defineSuite({
     "hub binds loopback only": () => {
       const hub = read("src/hub.js");
       contains(hub, '"127.0.0.1"', "hub bind host");
-      if (/host:\s*"0\.0\.0\.0"/.test(hub)) fail("hub binds 0.0.0.0 — reachable from the LAN");
+      if (/host:\s*"0\.0\.0\.0"/.test(hub)) fail("hub binds 0.0.0.0 - reachable from the LAN");
       return "127.0.0.1";
     },
 
@@ -104,13 +104,13 @@ export default defineSuite({
 
     "toolbar icon is inert": () => {
       const source = readTree(path.join(REPO, "extension/src"));
-      if (/chrome\.action\.onClicked\.addListener/.test(source)) fail("an onClicked handler exists — a click could trigger behaviour");
+      if (/chrome\.action\.onClicked\.addListener/.test(source)) fail("an onClicked handler exists - a click could trigger behaviour");
       const manifest = JSON.parse(read("extension/manifest.json"));
       if (manifest.action?.default_popup) fail("the action declares a popup");
       return "no click handler, no popup";
     },
 
-    // Tests what the patterns DO, not how they are spelled — a source-text check
+    // Tests what the patterns DO, not how they are spelled - a source-text check
     // passes even when a pattern is subtly broken.
     "ban list blocks the hosts it claims to": () => {
       const blocked = (url) => BANLIST.some((re) => re.test(url));
@@ -132,7 +132,7 @@ export default defineSuite({
         "https://github.com/paypal/some-repo",
         "http://127.0.0.1:9878/",
       ]) {
-        if (blocked(url)) fail(`BANLIST wrongly blocks ${url} — too broad`);
+        if (blocked(url)) fail(`BANLIST wrongly blocks ${url} - too broad`);
       }
       return "no false positives";
     },

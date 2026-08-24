@@ -1,4 +1,4 @@
-// custom-chrome-dev-mcp extension — MV3 service worker entry point.
+// custom-chrome-dev-mcp extension - MV3 service worker entry point.
 //
 // This file only wires things together; the behaviour lives in the modules below.
 //   config.js        constants shared across the extension
@@ -9,7 +9,7 @@
 //   recording/       gesture-free tab recording via CDP screencast
 //   handlers/        one file per tool group, mirroring src/tools/ on the server
 //
-// The toolbar icon is intentionally INERT — there is no onClicked handler and no
+// The toolbar icon is intentionally INERT - there is no onClicked handler and no
 // popup, so a click can never start a recording. Recording happens only through the
 // MCP `record` tool.
 import { startConnection } from "./connection.js";

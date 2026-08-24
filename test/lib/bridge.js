@@ -1,7 +1,7 @@
 // Stands in for src/hub.js during a browser run.
 //
 // The suite drives the extension over the SAME wire protocol the real hub uses, so a
-// passing run exercises the actual message contract — not a mock of it. It also records
+// passing run exercises the actual message contract - not a mock of it. It also records
 // every tool name it sends, which is how the runner proves coverage.
 import { WebSocketServer } from "ws";
 
@@ -25,7 +25,7 @@ export function connectExtension({ port = BRIDGE_PORT, timeout = 240000, onWaiti
     const giveUp = setTimeout(() => {
       wss.close();
       reject(new Error(
-        `no extension connected within ${Math.round(timeout / 1000)}s — open chrome://extensions and click reload ↻ on Custom-chrome-dev-mcp`,
+        `no extension connected within ${Math.round(timeout / 1000)}s - open chrome://extensions and click reload ↻ on Custom-chrome-dev-mcp`,
       ));
     }, timeout);
 
@@ -35,8 +35,8 @@ export function connectExtension({ port = BRIDGE_PORT, timeout = 240000, onWaiti
         ? new Error(
             `port ${port} is taken. Killing the hub is NOT enough on its own: a connected MCP ` +
             `client (Claude Code) respawns it every ~1.2s, so it wins the port straight back. ` +
-            `Close the MCP client first — or disable the custom-chrome-dev-mcp server for the ` +
-            `run — then:  pkill -f src/hub.js && npm run test:browser`,
+            `Close the MCP client first - or disable the custom-chrome-dev-mcp server for the ` +
+            `run - then:  pkill -f src/hub.js && npm run test:browser`,
           )
         : err);
     });

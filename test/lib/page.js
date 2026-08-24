@@ -1,7 +1,7 @@
 // The browser test session: one fixture tab, plus the helpers every browser suite uses.
 //
 // Tests get a page in a known state. `reset` re-navigates if a navigation test wandered
-// off, then calls the fixture's own __reset() to clear inputs and output divs — so no
+// off, then calls the fixture's own __reset() to clear inputs and output divs - so no
 // test can inherit another's mutations. The old suite had no isolation at all, which is
 // why its tests only passed in one specific order.
 import { eventually } from "./wait.js";

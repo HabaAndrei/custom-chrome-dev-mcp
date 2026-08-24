@@ -1,4 +1,4 @@
-// Covers src/tools/perception.js — how the agent reads the page.
+// Covers src/tools/perception.js - how the agent reads the page.
 import { defineSuite } from "../lib/runner.js";
 import { contains, equals, fail, hasKey, isAtLeast, rejects } from "../lib/assert.js";
 
@@ -24,7 +24,7 @@ export default defineSuite({
     "a ref from snapshotA11y can target an element": async ({ call, tab, prop }) => {
       const outline = await call("snapshotA11y", { tabId: tab });
       const text = typeof outline === "string" ? outline : JSON.stringify(outline);
-      // Refs are the whole point of the a11y outline — prove one round-trips.
+      // Refs are the whole point of the a11y outline - prove one round-trips.
       const ref = (text.match(/ref=(e\d+)/) || [])[1];
       if (!ref) fail(`no ref found in outline: ${text.slice(0, 120)}`);
       const result = await call("getText", { ref, tabId: tab });
@@ -48,7 +48,7 @@ export default defineSuite({
     },
 
     "getAttribute falls back to the live DOM property": async ({ call, tab }) => {
-      // #inp has no value="" attribute set after typing — only the property changes.
+      // #inp has no value="" attribute set after typing - only the property changes.
       await call("fill", { selector: "#inp", text: "live-value", tabId: tab });
       contains(await call("getAttribute", { selector: "#inp", attr: "value", tabId: tab }), "live-value", "value property");
       return "property";
@@ -56,7 +56,7 @@ export default defineSuite({
 
     "queryAll returns every match at once": async ({ call, tab }) => {
       const result = await call("queryAll", { selector: "input", tabId: tab });
-      // The tool's documented shape is {count, items} — accept that first.
+      // The tool's documented shape is {count, items} - accept that first.
       const list = Array.isArray(result) ? result : result?.items ?? result?.results ?? result?.elements;
       if (!Array.isArray(list)) fail(`queryAll returned a non-list: ${JSON.stringify(result).slice(0, 120)}`);
       isAtLeast(list.length, 3, "input count");

@@ -1,4 +1,4 @@
-// custom-chrome-dev-mcp — a local-only MCP server that drives Chrome through a
+// custom-chrome-dev-mcp - a local-only MCP server that drives Chrome through a
 // companion extension. Inspired by Chrome's official browser MCP: an independent
 // reimplementation of the same idea, aimed at imitating a real human at the keyboard
 // (trusted CDP input, genuine focus changes, human-paced typing) rather than firing

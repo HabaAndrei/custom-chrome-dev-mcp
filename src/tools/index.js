@@ -1,5 +1,5 @@
 // The tool registry. Every tool this MCP exposes is registered from exactly one of
-// these groups, and each group mirrors a handler file in extension/src/handlers/ —
+// these groups, and each group mirrors a handler file in extension/src/handlers/ -
 // adding a tool means touching that pair and nothing else.
 import { registerNavigationTools } from "./navigation.js";
 import { registerTabTools } from "./tabs.js";

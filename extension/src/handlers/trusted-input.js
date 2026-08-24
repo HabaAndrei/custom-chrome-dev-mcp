@@ -1,6 +1,6 @@
 // Mirrors src/tools/trusted-input.js on the server.
 //
-// Everything here dispatches through CDP so the page sees isTrusted=true events —
+// Everything here dispatches through CDP so the page sees isTrusted=true events -
 // the same path a physical mouse and keyboard take. Each handler attaches the
 // debugger first, which is what puts the "being debugged" banner on the tab.
 import { resolveTab, toTarget } from "../tabs.js";
@@ -11,14 +11,14 @@ import { setDialogPolicy } from "../cdp/dialogs.js";
 
 const META = { requireScriptable: false };
 
-/** Attach and resolve in one step — every trusted-input handler starts this way. */
+/** Attach and resolve in one step - every trusted-input handler starts this way. */
 async function cdpTab(a, opts) {
   const tab = await resolveTab(a, opts);
   await ensureAttached(tab.id);
   return tab;
 }
 
-/** `MouseEvent.buttons` bitmask — which buttons are held DURING an event. */
+/** `MouseEvent.buttons` bitmask - which buttons are held DURING an event. */
 const BUTTON_MASK = { left: 1, right: 2, middle: 4 };
 
 /**
@@ -27,7 +27,7 @@ const BUTTON_MASK = { left: 1, right: 2, middle: 4 };
  * A real cursor passes through the space between two points, firing mousemove the
  * whole way. Menus that open on mouseover, hover-intent handlers that measure
  * movement, and drag implementations that need more than one move all depend on
- * those intermediate events — and a single instant jump is a tell on its own.
+ * those intermediate events - and a single instant jump is a tell on its own.
  * Step count scales with distance, so a short hop stays cheap.
  */
 async function moveMouseTo(tabId, to, buttons = 0) {
@@ -100,7 +100,7 @@ export const trustedInputHandlers = {
   async realType(a) {
     const tab = await cdpTab(a);
     await focusTarget(tab.id, a);
-    // Real keystrokes rather than Input.insertText — see typeText for why that
+    // Real keystrokes rather than Input.insertText - see typeText for why that
     // matters. `delay: 0` is available when a caller wants raw speed instead.
     const typed = await typeText(tab.id, a.text, a.delay == null ? 18 : a.delay);
     return { typed };
@@ -127,7 +127,7 @@ export const trustedInputHandlers = {
     await moveMouseTo(tab.id, start);
     await cdp(tab.id, "Input.dispatchMouseEvent", { type: "mousePressed", x: start.x, y: start.y, button: "left", clickCount: 1, buttons: 1 });
     // Interpolated, with the button reported as held the whole way. A single jump
-    // move is what most drag targets reject — HTML5 drag and the common JS drag
+    // move is what most drag targets reject - HTML5 drag and the common JS drag
     // libraries both need to observe motion between press and release.
     await moveMouseTo(tab.id, end, 1);
     await cdp(tab.id, "Input.dispatchMouseEvent", { type: "mouseReleased", x: end.x, y: end.y, button: "left", clickCount: 1, buttons: 0 });

@@ -1,8 +1,8 @@
 // Suite registry and execution.
 //
 // Two lanes, and the split is the point:
-//   "offline" — pure Node. Static analysis and unit checks. Runs in CI, takes ms.
-//   "browser" — needs Chrome with the extension loaded and a live fixture page.
+//   "offline" - pure Node. Static analysis and unit checks. Runs in CI, takes ms.
+//   "browser" - needs Chrome with the extension loaded and a live fixture page.
 // The old suite buried its offline checks behind "reload the extension in Chrome",
 // so none of them could run unattended. Now `--lane=offline` is a real CI gate.
 import { AssertionError } from "./assert.js";
@@ -63,7 +63,7 @@ export async function runSuites(suites, { lanes, grep, context, log = console.lo
     for (const [name, fn] of selected) {
       const startedAt = Date.now();
       try {
-        // Each browser test starts from a known page state — no inherited mutations.
+        // Each browser test starts from a known page state - no inherited mutations.
         if (suite.lane === "browser" && suiteContext.resetPage) await suiteContext.resetPage();
 
         const outcome = await runWithTimeout(fn, suiteContext, suite.timeout ?? DEFAULT_TEST_TIMEOUT);

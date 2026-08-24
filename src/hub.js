@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// custom-chrome-dev-mcp hub — a small, long-lived relay so MULTIPLE Claude Code sessions can
+// custom-chrome-dev-mcp hub - a small, long-lived relay so MULTIPLE Claude Code sessions can
 // all drive the single browser extension AT THE SAME TIME.
 //
 //   [Claude session 1] relay/hub-client ─┐
@@ -24,7 +24,7 @@ let nextHubId = 1;
 const wss = new WebSocketServer({ host: "127.0.0.1", port: WS_PORT });
 wss.on("listening", () => console.error(`[hub] listening on 127.0.0.1:${WS_PORT}`));
 wss.on("error", (err) => {
-  if (err.code === "EADDRINUSE") process.exit(0); // another hub already owns it — defer to it
+  if (err.code === "EADDRINUSE") process.exit(0); // another hub already owns it - defer to it
   console.error("[hub] server error:", err.message);
   process.exit(1);
 });
@@ -48,7 +48,7 @@ wss.on("connection", (ws) => {
     if (msg.type === "ping") { try { ws.send(JSON.stringify({ type: "pong" })); } catch {} return; }
 
     if (role === "extension") {
-      // A tool result coming back — route to the client that asked, restoring its id.
+      // A tool result coming back - route to the client that asked, restoring its id.
       const r = route.get(msg.id);
       if (!r) return;
       route.delete(msg.id);

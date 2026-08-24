@@ -13,7 +13,7 @@ export const WS_PORT = Number(process.env.CUSTOM_CHROME_DEV_MCP_WS_PORT) || 9876
 
 /**
  * Shared secret for the local WebSocket. Must stay identical to AUTH_TOKEN in
- * extension/src/config.js — the hub rejects any peer that presents another value.
+ * extension/src/config.js - the hub rejects any peer that presents another value.
  */
 export const AUTH_TOKEN = "bmcp-7f3a9c2e5d14";
 
@@ -23,7 +23,7 @@ export const HUB_LOG = path.join(os.tmpdir(), `${SERVER_NAME}-hub.log`);
 
 /**
  * The one directory captures may be written to (screenshots, recordings). Every
- * caller-supplied path is confined to it — see src/capture/capture-path.js.
+ * caller-supplied path is confined to it - see src/capture/capture-path.js.
  * Defaults to Downloads so captures are easy to find.
  */
 export const CAPTURE_DIR = process.env.CUSTOM_CHROME_DEV_MCP_CAPTURE_DIR

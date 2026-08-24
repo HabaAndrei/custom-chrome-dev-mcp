@@ -13,7 +13,7 @@ export const interactionHandlers = {
   async check(a) { return domOp("check", { target: toTarget(a), checked: a.checked }, a); },
   async submit(a) { return domOp("submit", { target: toTarget(a) }, a); },
 
-  // Accepts a text string too — poll until it appears anywhere on the page.
+  // Accepts a text string too - poll until it appears anywhere on the page.
   async waitForSelector(a) {
     return domOp("waitFor", { target: a.text != null ? a.text : toTarget(a), timeoutMs: a.timeout }, a);
   },

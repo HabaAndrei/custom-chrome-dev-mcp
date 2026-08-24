@@ -1,4 +1,4 @@
-// Covers src/tools/capture.js — screenshots and recording.
+// Covers src/tools/capture.js - screenshots and recording.
 //
 // These assert on file MAGIC BYTES, not just on a non-empty response: a "screenshot"
 // that is really an error string would otherwise pass.
@@ -47,7 +47,7 @@ export default defineSuite({
     },
 
     "record captures a real WebM without any user gesture": async ({ call, tab, artifacts }) => {
-      // No toolbar click anywhere in this test — that is the point. Recording runs on
+      // No toolbar click anywhere in this test - that is the point. Recording runs on
       // CDP screencast precisely because an MCP call has no user gesture.
       const started = await call("record", { action: "start", tabId: tab });
       isTrue(started.recording, "recording flag after start");

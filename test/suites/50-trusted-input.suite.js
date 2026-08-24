@@ -1,4 +1,4 @@
-// Covers src/tools/trusted-input.js — the CDP path that makes this read as human.
+// Covers src/tools/trusted-input.js - the CDP path that makes this read as human.
 //
 // The distinguishing assertion here is `isTrusted`: these tests don't just check that
 // something happened, they check the page saw a REAL event. That is the property the
@@ -19,7 +19,7 @@ export default defineSuite({
     },
 
     "realClick delivers isTrusted=true": async ({ call, tab, js }) => {
-      // The whole point of the CDP path — a synthetic click would report false.
+      // The whole point of the CDP path - a synthetic click would report false.
       await js("window.__trusted = null; document.getElementById('btn').addEventListener('click', (e) => { window.__trusted = e.isTrusted; }, { once: true })");
       await call("realClick", { selector: "#btn", tabId: tab });
       const trusted = await eventually(async () => (await js("window.__trusted")) !== "null" ? js("window.__trusted") : false, { what: "the click event to arrive" });
@@ -106,7 +106,7 @@ export default defineSuite({
     },
 
     "drag moves across a 420px gap": async ({ call, tab, propBecomes }) => {
-      // from and to are far enough apart that both centres cannot be on screen at once —
+      // from and to are far enough apart that both centres cannot be on screen at once -
       // this is the case that caught a real scroll-invalidation bug.
       await call("drag", { from: { selector: "#drag" }, to: { selector: "#drop" }, tabId: tab });
       await propBecomes("#drop", "textContent", "dropped");
@@ -115,7 +115,7 @@ export default defineSuite({
 
     "drag glides instead of teleporting": async ({ call, tab, js }) => {
       // One jump move is what HTML5 drag and most JS drag libraries refuse to treat
-      // as a drag at all — they need to observe motion between press and release,
+      // as a drag at all - they need to observe motion between press and release,
       // with the button reported as held.
       await call("drag", { from: { selector: "#drag" }, to: { selector: "#drop" }, tabId: tab });
       const moves = Number(await eventually(

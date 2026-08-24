@@ -218,12 +218,12 @@
    *
    * Two things this fixes over dispatching a lone `click`:
    *
-   * 1. Handlers bound to mousedown/pointerdown — dropdowns, menus, and most component
-   *    libraries — never saw anything at all before, so `click` looked like it did
+   * 1. Handlers bound to mousedown/pointerdown - dropdowns, menus, and most component
+   *    libraries - never saw anything at all before, so `click` looked like it did
    *    nothing on exactly the widgets people most want to drive.
    * 2. There is no el.click() afterwards. Dispatching `click` already runs the
    *    element's activation behaviour (links navigate, submit buttons submit,
-   *    checkboxes toggle), so the old fallback ran every handler a SECOND time —
+   *    checkboxes toggle), so the old fallback ran every handler a SECOND time -
    *    a double submit on any page whose handler didn't call preventDefault().
    */
   function humanClick(el) {
@@ -248,7 +248,7 @@
     const md = fire(MouseEvent, "mousedown", down);
 
     // A real browser moves focus on mousedown, and skips it when the handler calls
-    // preventDefault() — which is how "click here without stealing focus" widgets
+    // preventDefault() - which is how "click here without stealing focus" widgets
     // work. Mirror both halves rather than focusing unconditionally.
     if (!md.defaultPrevented) { try { el.focus({ preventScroll: true }); } catch {} }
 
@@ -316,7 +316,7 @@
       return { ok, checks };
     },
     scroll: (a) => doScroll(a),
-    // Session-history fallback for the navigation group — see walkHistory() in
+    // Session-history fallback for the navigation group - see walkHistory() in
     // handlers/navigation.js for why the chrome.tabs API isn't enough on its own.
     historyGo: ({ delta }) => { history.go(delta); return { went: delta }; },
     select: ({ target, value, label }) => {
@@ -350,7 +350,7 @@
       const el = resolveTarget(target);
       // Form state lives on the PROPERTY, not the attribute. The attribute holds only
       // the value the markup shipped with and never changes as text is entered, so
-      // <input value=""> would report "" forever however much was typed into it — and
+      // <input value=""> would report "" forever however much was typed into it - and
       // an empty attribute is not null, so the fallback below never fired for exactly
       // the fields an agent most needs to read back.
       if (LIVE_PROPERTIES.has(name) && name in el) {

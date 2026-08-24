@@ -4,7 +4,7 @@ export const WS_URL = "ws://127.0.0.1:9876";
 export const AUTH_TOKEN = "bmcp-7f3a9c2e5d14";
 export const BUILD = "0.4.0";
 
-/** Sub-30s so it beats the MV3 idle teardown — see connection.js. */
+/** Sub-30s so it beats the MV3 idle teardown - see connection.js. */
 export const HEARTBEAT_MS = 20000;
 export const RECONNECT_MS = 1500;
 

@@ -22,7 +22,7 @@ export const forgetIfPinned = (tabId) => { if (pinnedTabId === tabId) pinnedTabI
  *
  * @param {object} args tool arguments (tabId, expectUrl)
  * @param {{requireScriptable?: boolean}} opts requireScriptable rejects chrome:// and
- *   banlisted pages — set false for tools that only read tab metadata or capture pixels.
+ *   banlisted pages - set false for tools that only read tab metadata or capture pixels.
  */
 export async function resolveTab(args = {}, { requireScriptable = true } = {}) {
   const wantId = args && args.tabId != null ? args.tabId : pinnedTabId;

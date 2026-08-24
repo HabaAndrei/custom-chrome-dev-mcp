@@ -1,7 +1,7 @@
 // Debugger attach/detach lifecycle and the raw CDP command channel.
 //
 // Attaching is what puts the yellow "being debugged" banner on a tab, so it happens
-// lazily — only when a tool actually needs trusted input, evaluation, or capture.
+// lazily - only when a tool actually needs trusted input, evaluation, or capture.
 import { runWalker } from "../walker-bridge.js";
 import { toTarget, forgetIfPinned } from "../tabs.js";
 import { clearBuffers } from "./buffers.js";

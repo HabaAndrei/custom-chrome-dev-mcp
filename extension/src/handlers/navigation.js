@@ -20,11 +20,11 @@ async function urlMoved(tabId, before, timeoutMs = 3000) {
  *
  * chrome.tabs.goBack/goForward are the obvious API, but goBack has been observed to
  * refuse with "Cannot find a next page in history." on tabs that demonstrably DO have
- * a back entry — the same tab's own history.back() moves it without complaint. Trusting
+ * a back entry - the same tab's own history.back() moves it without complaint. Trusting
  * the tabs API alone therefore made `back` fail on ordinary two-page histories.
  *
  * So: try the tabs API, and when it refuses, drive the renderer's history directly and
- * confirm the url actually moved before reporting success — otherwise a genuinely empty
+ * confirm the url actually moved before reporting success - otherwise a genuinely empty
  * history would look like a silent no-op instead of an error.
  */
 async function walkHistory(tab, delta) {
