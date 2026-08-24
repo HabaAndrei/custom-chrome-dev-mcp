@@ -316,6 +316,9 @@
       return { ok, checks };
     },
     scroll: (a) => doScroll(a),
+    // Session-history fallback for the navigation group — see walkHistory() in
+    // handlers/navigation.js for why the chrome.tabs API isn't enough on its own.
+    historyGo: ({ delta }) => { history.go(delta); return { went: delta }; },
     select: ({ target, value, label }) => {
       const el = resolveTarget(target);
       try { el.focus({ preventScroll: true }); } catch {}
