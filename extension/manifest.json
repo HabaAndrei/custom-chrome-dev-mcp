@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Custom-chrome-dev-mcp",
+  "version": "0.4.0",
+  "description": "custom-chrome-dev-mcp — local-only MCP bridge that drives the active tab like a human.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs9O48ZVdP8REUhbwL0LKFJhPh6YM1ErP774Bgkr0DvYM7CB6/QQok4pAXyUnN9m12jELJWv/Up1USQ00XBvfOK8xHZVhslJvKnQkEGjGinV6YfKgm30PGMOFJVGfm40RQbo2WcYgA1QQIkP91oNTU26TlBvRODlXFC7D/KkxW+fnHu30pqcIrieM8ERwwyjtCuYhbl1FHp6aDO2KnQQ78dq9kwdv6inuoUaBHjQ3pfU52I4zB6OFIzLpv/TgkOdJTAGxUenD3G8kqH/TE883YKKsbITgyN1tRX4xrcGTu59j32ZeHa77eqrpcJ9yjibFIeqDwMF060ogsXqRTiGsIwIDAQAB",
+  "permissions": ["tabs", "scripting", "activeTab", "alarms", "debugger", "offscreen", "webNavigation"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "src/background.js", "type": "module" },
+  "action": { "default_title": "Custom-chrome-dev-mcp (MCP bridge — no click action)" }
+}
