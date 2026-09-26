@@ -5,7 +5,7 @@ Code, or anything else that speaks MCP - drive **your real Chrome browser** the 
 person would. No telemetry, no third-party services, no cloud: everything runs on your
 machine behind a shared token.
 
-It exposes **53 tools** across navigation, tabs, perception, interaction, trusted
+It exposes **56 tools** across navigation, tabs, perception, interaction, trusted
 input, observability, capture, and storage.
 
 ---
@@ -200,7 +200,7 @@ Add the server under `mcpServers`:
 ### 4. Restart the MCP client
 
 MCP clients enumerate tools once, at startup - a server registered mid-session is
-invisible until you restart. Restart Claude, and the 53 tools appear.
+invisible until you restart. Restart Claude, and the 56 tools appear.
 
 On restart the client launches the server, which spawns `src/hub.js` if nothing is
 already listening on `127.0.0.1:9876`.
@@ -282,7 +282,7 @@ another local process from driving your browser.
 
 ---
 
-## Available tools (53)
+## Available tools (56)
 
 Elements are targeted three ways: **`selector`** (CSS), **`ref`** (a stable `eN` id
 from `snapshotA11y`), or **`name`** (accessible name, e.g. a button's label). "target"
@@ -331,6 +331,7 @@ autoplaying video, a notification popup) can't steal focus and misdirect an acti
 | `getAttribute` | target, `attr` | An attribute, falling back to the live DOM property (`value`, `checked`, `href`). |
 | `queryAll` | `selector`, `limit?` | text/href/value/visible for **every** match at once. |
 | `viewport` | - | `devicePixelRatio`, CSS viewport, scroll offset - how you map screenshot px → CSS px. |
+| `getComputedStyle` | target, `properties?` | Computed CSS - a curated default set (box model, typography, color), or just the properties you name. |
 
 ### Interaction - synthetic, fast
 
@@ -347,6 +348,8 @@ Untrusted events dispatched by the walker. Quick, and enough for most sites.
 | `check` | target, `checked` | Set a checkbox/radio, clicking only if it isn't already there. |
 | `submit` | target | `requestSubmit()` the owning form - for forms with no clickable button. |
 | `waitForSelector` | target **or** `text`, `timeout?` | Poll until an element resolves **or** a text substring appears. |
+| `setAttribute` | target, `name`, `value` | Set an HTML attribute directly - a live DOM edit, not just the markup it shipped with. |
+| `removeAttribute` | target, `name` | Remove an HTML attribute. |
 
 ### Trusted input & emulation - CDP
 
@@ -489,7 +492,7 @@ the real hub**, so a passing run exercises the actual message contract. Each sui
 mirrors a tool group, and every test starts from a reset fixture page - no test
 inherits another's mutations.
 
-At the end it prints **tool coverage** and fails if any of the 53 tools went
+At the end it prints **tool coverage** and fails if any of the 56 tools went
 unexercised.
 
 ### Options

@@ -160,5 +160,26 @@ export default defineSuite({
       );
       return message.slice(0, 20);
     },
+
+    "setAttribute writes an attribute that getAttribute reads back": async ({ call, tab }) => {
+      await call("setAttribute", { selector: "#btn", name: "data-cdm", value: "marked", tabId: tab });
+      equals(await call("getAttribute", { selector: "#btn", attr: "data-cdm", tabId: tab }), "marked", "data-cdm");
+      await call("removeAttribute", { selector: "#btn", name: "data-cdm", tabId: tab });
+      return "written";
+    },
+
+    "removeAttribute deletes the attribute": async ({ call, tab }) => {
+      await call("setAttribute", { selector: "#btn", name: "data-temp", value: "x", tabId: tab });
+      await call("removeAttribute", { selector: "#btn", name: "data-temp", tabId: tab });
+      equals(await call("getAttribute", { selector: "#btn", attr: "data-temp", tabId: tab }), null, "data-temp after remove");
+      return "removed";
+    },
+
+    "setAttribute can change an existing attribute like href": async ({ call, tab }) => {
+      await call("setAttribute", { selector: "#lnk", name: "href", value: "/changed", tabId: tab });
+      contains(await call("getAttribute", { selector: "#lnk", attr: "href", tabId: tab }), "/changed", "href after setAttribute");
+      await call("setAttribute", { selector: "#lnk", name: "href", value: "/next", tabId: tab });
+      return "changed";
+    },
   },
 });

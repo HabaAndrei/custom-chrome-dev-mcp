@@ -114,6 +114,27 @@
   /** Attributes whose live DOM property diverges from the markup as a user interacts. */
   const LIVE_PROPERTIES = new Set(["value", "checked", "selected", "indeterminate"]);
 
+  /** A curated subset of getComputedStyle() covering box model, typography, and color -
+   * the full CSSStyleDeclaration has 300+ entries, most of them noise for an agent. */
+  const DEFAULT_STYLE_PROPS = [
+    "display", "position", "top", "right", "bottom", "left",
+    "width", "height", "boxSizing",
+    "marginTop", "marginRight", "marginBottom", "marginLeft",
+    "paddingTop", "paddingRight", "paddingBottom", "paddingLeft",
+    "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth", "borderStyle", "borderColor",
+    "color", "backgroundColor", "opacity", "visibility", "overflow", "zIndex",
+    "fontSize", "fontWeight", "fontFamily", "lineHeight", "textAlign",
+    "flexDirection", "justifyContent", "alignItems", "gap",
+  ];
+
+  function readComputedStyle(el, properties) {
+    const cs = getComputedStyle(el);
+    const props = properties && properties.length ? properties : DEFAULT_STYLE_PROPS;
+    const out = {};
+    for (const p of props) out[p] = p in cs ? String(cs[p]) : null;
+    return out;
+  }
+
   // Read an element's current text, treating inputs and contenteditables uniformly.
   function currentValue(el) {
     if (el.isContentEditable) return (el.innerText || el.textContent || "").trim();
@@ -369,6 +390,17 @@
       return { count: out.length, items: out };
     },
     getHtml: () => document.body.outerHTML.slice(0, 50000),
+    getComputedStyle: ({ target, properties }) => readComputedStyle(resolveTarget(target), properties),
+    setAttribute: ({ target, name, value }) => {
+      const el = resolveTarget(target);
+      el.setAttribute(name, value);
+      return { name, value: el.getAttribute(name) };
+    },
+    removeAttribute: ({ target, name }) => {
+      const el = resolveTarget(target);
+      el.removeAttribute(name);
+      return { name, removed: true };
+    },
     // Viewport metadata so callers can map screenshot pixels (device px) to the CSS
     // pixels realClick/x,y use: cssX = screenshotX / devicePixelRatio.
     viewport: () => ({

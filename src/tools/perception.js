@@ -11,4 +11,5 @@ export function registerPerceptionTools(server) {
   tool("getAttribute", "Return an element's attribute, falling back to the matching DOM property if absent (e.g. value, checked, href).", { ...TARGET, attr: z.string() });
   tool("queryAll", "Return text/href/value/visible for every element matching a CSS selector (capped by limit). Use to extract a list of elements at once.", { selector: z.string(), limit: z.number().optional() });
   tool("viewport", "Return the tab's devicePixelRatio, CSS viewport size, and scroll offset. Use to convert screenshot pixels (device px) to the CSS px realClick/x,y use: cssX = screenshotX / devicePixelRatio.", {});
+  tool("getComputedStyle", "Return computed CSS for one element. Pass properties (camelCase CSS property names, e.g. ['display','color']) for just those; omit it for a curated default set covering box model, typography, and color.", { ...TARGET, properties: z.array(z.string()).optional() });
 }

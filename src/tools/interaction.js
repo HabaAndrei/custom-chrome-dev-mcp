@@ -15,5 +15,7 @@ export function registerInteractionTools(server) {
   tool("select", "Select an option in a <select> by its value or visible label, firing input/change events.", { ...TARGET, value: z.string().optional(), label: z.string().optional() });
   tool("check", "Set a checkbox or radio to the desired checked state, clicking it only if it isn't already there.", { ...TARGET, checked: z.boolean() });
   tool("submit", "Submit the form that owns the target element (requestSubmit). Use when a form has no clickable submit button.", { ...TARGET });
+  tool("setAttribute", "Set an HTML attribute on an element directly - a live DOM edit, not just the markup it shipped with. Read it back with getAttribute.", { ...TARGET, name: z.string(), value: z.string() });
+  tool("removeAttribute", "Remove an HTML attribute from an element.", { ...TARGET, name: z.string() });
   tool("waitForSelector", "Poll until a target resolves (selector/ref/name) OR a `text` substring appears on the page. Pass exactly one of selector/ref/name/text. Use waitForLoad to wait on full navigation.", { ...TARGET, text: z.string().optional(), timeout: z.number().optional() });
 }

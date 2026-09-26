@@ -12,6 +12,8 @@ export const interactionHandlers = {
   async select(a) { return domOp("select", { target: toTarget(a), value: a.value, label: a.label }, a); },
   async check(a) { return domOp("check", { target: toTarget(a), checked: a.checked }, a); },
   async submit(a) { return domOp("submit", { target: toTarget(a) }, a); },
+  async setAttribute(a) { return domOp("setAttribute", { target: toTarget(a), name: a.name, value: a.value }, a); },
+  async removeAttribute(a) { return domOp("removeAttribute", { target: toTarget(a), name: a.name }, a); },
 
   // Accepts a text string too - poll until it appears anywhere on the page.
   async waitForSelector(a) {

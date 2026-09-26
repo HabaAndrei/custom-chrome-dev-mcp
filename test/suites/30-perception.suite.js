@@ -82,5 +82,22 @@ export default defineSuite({
       contains(await call("getText", { selector: "#fmsg", tabId: tab, frameId: child.frameId }), "inner frame", "frame text");
       return `frame ${child.frameId}`;
     },
+
+    "getComputedStyle returns the curated default properties": async ({ call, tab }) => {
+      // #drag is styled inline: width/height 64px, background #2dd4bf (rgb(45,212,191)).
+      const style = await call("getComputedStyle", { selector: "#drag", tabId: tab });
+      equals(style.width, "64px", "width");
+      equals(style.height, "64px", "height");
+      equals(style.backgroundColor, "rgb(45, 212, 191)", "backgroundColor");
+      isAtLeast(Object.keys(style).length, 10, "default property count");
+      return "curated set";
+    },
+
+    "getComputedStyle can be filtered to specific properties": async ({ call, tab }) => {
+      const style = await call("getComputedStyle", { selector: "#drag", properties: ["width", "height"], tabId: tab });
+      equals(Object.keys(style).length, 2, "filtered property count");
+      equals(style.width, "64px", "width");
+      return "filtered";
+    },
   },
 });
