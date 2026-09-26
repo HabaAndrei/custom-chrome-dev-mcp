@@ -8,6 +8,7 @@ import { registerInteractionTools } from "./interaction.js";
 import { registerTrustedInputTools } from "./trusted-input.js";
 import { registerObservabilityTools } from "./observability.js";
 import { registerCaptureTools } from "./capture.js";
+import { registerStorageTools } from "./storage.js";
 
 // Keyed so the test suite can assert these groups line up with the extension's.
 const GROUPS = {
@@ -18,6 +19,7 @@ const GROUPS = {
   trustedInput: registerTrustedInputTools,
   observability: registerObservabilityTools,
   capture: registerCaptureTools,
+  storage: registerStorageTools,
 };
 
 /** Names of the tool groups, in registration order. */

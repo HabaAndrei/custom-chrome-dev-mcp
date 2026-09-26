@@ -7,6 +7,7 @@ import { interactionHandlers } from "./interaction.js";
 import { trustedInputHandlers } from "./trusted-input.js";
 import { observabilityHandlers } from "./observability.js";
 import { captureHandlers } from "./capture.js";
+import { storageHandlers } from "./storage.js";
 
 /** The groups, kept addressable so the test suite can check for name collisions. */
 export const HANDLER_GROUPS = {
@@ -17,6 +18,7 @@ export const HANDLER_GROUPS = {
   trustedInput: trustedInputHandlers,
   observability: observabilityHandlers,
   capture: captureHandlers,
+  storage: storageHandlers,
 };
 
 // Flattened lookup. Spreading means a name defined in two groups would silently win

@@ -5,8 +5,8 @@ Code, or anything else that speaks MCP - drive **your real Chrome browser** the 
 person would. No telemetry, no third-party services, no cloud: everything runs on your
 machine behind a shared token.
 
-It exposes **45 tools** across navigation, tabs, perception, interaction, trusted
-input, observability, and capture.
+It exposes **53 tools** across navigation, tabs, perception, interaction, trusted
+input, observability, capture, and storage.
 
 ---
 
@@ -200,7 +200,7 @@ Add the server under `mcpServers`:
 ### 4. Restart the MCP client
 
 MCP clients enumerate tools once, at startup - a server registered mid-session is
-invisible until you restart. Restart Claude, and the 45 tools appear.
+invisible until you restart. Restart Claude, and the 53 tools appear.
 
 On restart the client launches the server, which spawns `src/hub.js` if nothing is
 already listening on `127.0.0.1:9876`.
@@ -282,7 +282,7 @@ another local process from driving your browser.
 
 ---
 
-## Available tools (45)
+## Available tools (53)
 
 Elements are targeted three ways: **`selector`** (CSS), **`ref`** (a stable `eN` id
 from `snapshotA11y`), or **`name`** (accessible name, e.g. a button's label). "target"
@@ -391,6 +391,24 @@ Saved into the capture directory (`~/Downloads` by default - see
 `path` is a filename or a path **inside** the capture directory. Missing subfolders
 are created; anything resolving outside the directory is refused.
 
+### Storage - cookies via CDP, localStorage/sessionStorage via `evaluate`
+
+Cookies go through the CDP Network domain (sees httpOnly cookies a page's own JS
+cannot); `local`/`session` storage tools run through the same `Runtime.evaluate` path
+as `evaluate`, so they only see what the page itself could see. Both respect the ban
+list, same as every other scriptable tool.
+
+| Tool | Args | Description |
+| --- | --- | --- |
+| `getCookies` | - | Every cookie visible to the tab's current URL. |
+| `setCookie` | `name`, `value`, `url?`, `domain?`, `path?`, `secure?`, `httpOnly?`, `sameSite?`, `expires?` | Set a cookie. `url` defaults to the tab's current URL. |
+| `deleteCookie` | `name`, `url?`, `domain?`, `path?` | Delete one cookie by name. |
+| `clearCookies` | - | Delete every cookie visible to the tab's URL - not the whole browser. |
+| `getStorage` | `area` (`local`/`session`), `key?` | One value (`null` if absent), or every key/value pair if `key` is omitted. |
+| `setStorageItem` | `area`, `key`, `value` | Write one key/value pair. |
+| `removeStorageItem` | `area`, `key` | Remove one key. |
+| `clearStorage` | `area` | Clear every key in that area. |
+
 ---
 
 ## A first real run
@@ -471,7 +489,7 @@ the real hub**, so a passing run exercises the actual message contract. Each sui
 mirrors a tool group, and every test starts from a reset fixture page - no test
 inherits another's mutations.
 
-At the end it prints **tool coverage** and fails if any of the 45 tools went
+At the end it prints **tool coverage** and fails if any of the 53 tools went
 unexercised.
 
 ### Options
@@ -509,7 +527,8 @@ test/
     ├── 40-interaction.suite.js
     ├── 50-trusted-input.suite.js
     ├── 60-observability.suite.js
-    └── 70-capture.suite.js
+    ├── 70-capture.suite.js
+    └── 80-storage.suite.js
 ```
 
 ---
@@ -561,6 +580,7 @@ the other.
 | trusted input | `src/tools/trusted-input.js` | `extension/src/handlers/trusted-input.js` |
 | observability | `src/tools/observability.js` | `extension/src/handlers/observability.js` |
 | capture | `src/tools/capture.js` | `extension/src/handlers/capture.js` |
+| storage | `src/tools/storage.js` | `extension/src/handlers/storage.js` |
 
 Everything else is supporting infrastructure:
 
@@ -619,7 +639,8 @@ Everything else is supporting infrastructure:
 │       ├── interaction.js
 │       ├── trusted-input.js
 │       ├── observability.js
-│       └── capture.js
+│       ├── capture.js
+│       └── storage.js
 ├── extension/                     # Chrome MV3 extension
 │   ├── manifest.json
 │   └── src/
@@ -647,7 +668,8 @@ Everything else is supporting infrastructure:
 │           ├── interaction.js
 │           ├── trusted-input.js
 │           ├── observability.js
-│           └── capture.js
+│           ├── capture.js
+│           └── storage.js
 └── test/                          # two lanes: offline (CI) + browser
     ├── run.mjs                    # CLI entry
     ├── lib/                       # runner, assertions, bridge, fixtures, session
