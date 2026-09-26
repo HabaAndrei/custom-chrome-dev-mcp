@@ -153,6 +153,36 @@ export const trustedInputHandlers = {
     return { viewport: [a.width, a.height] };
   },
 
+  async setCPUThrottling(a) {
+    const tab = await cdpTab(a);
+    await cdp(tab.id, "Emulation.setCPUThrottlingRate", { rate: a.rate });
+    return { rate: a.rate };
+  },
+
+  async setGeolocation(a = {}) {
+    const tab = await cdpTab(a);
+    if (a.clear) {
+      await cdp(tab.id, "Emulation.clearGeolocationOverride");
+      return { cleared: true };
+    }
+    const override = { latitude: a.latitude, longitude: a.longitude, accuracy: a.accuracy ?? 1 };
+    await cdp(tab.id, "Emulation.setGeolocationOverride", override);
+    return { applied: override };
+  },
+
+  async setMediaFeatures(a = {}) {
+    const tab = await cdpTab(a);
+    if (a.clear) {
+      await cdp(tab.id, "Emulation.setEmulatedMedia", { media: "", features: [] });
+      return { cleared: true };
+    }
+    const features = [];
+    if (a.colorScheme) features.push({ name: "prefers-color-scheme", value: a.colorScheme });
+    if (a.reducedMotion) features.push({ name: "prefers-reduced-motion", value: a.reducedMotion });
+    await cdp(tab.id, "Emulation.setEmulatedMedia", { media: a.media || "", features });
+    return { media: a.media || "", features };
+  },
+
   async handleDialog(a) {
     const tab = await cdpTab(a, META);
     await cdp(tab.id, "Page.enable");

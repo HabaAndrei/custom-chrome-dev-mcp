@@ -130,6 +130,34 @@ export const observabilityHandlers = {
     return { applied: conditions };
   },
 
+  async getEventListeners(a) {
+    // getEventListeners() is a Command Line API function, only reachable via
+    // includeCommandLineAPI:true - it isn't defined in the page's normal JS context,
+    // and it isn't reachable from the walker's ISOLATED world either. That also means
+    // it can only take a selector: refs live in the walker's own ref map, which this
+    // evaluate call has no access to.
+    const tab = await resolveTab(a);
+    await ensureAttached(tab.id);
+
+    const expression = `(() => {
+      const el = document.querySelector(${JSON.stringify(a.selector)});
+      if (!el) return { __notFound: true };
+      const map = getEventListeners(el);
+      const out = {};
+      for (const [type, list] of Object.entries(map)) {
+        out[type] = list.map((l) => ({ useCapture: !!l.useCapture, passive: !!l.passive, once: !!l.once }));
+      }
+      return out;
+    })()`;
+    const r = await cdp(tab.id, "Runtime.evaluate", { expression, returnByValue: true, includeCommandLineAPI: true });
+    if (r.exceptionDetails)
+      throw new Error(r.exceptionDetails.exception?.description || r.exceptionDetails.text || "eval error");
+
+    const value = r.result?.value;
+    if (value?.__notFound) throw new Error("selector not found: " + a.selector);
+    return { selector: a.selector, listeners: value || {} };
+  },
+
   async getHar(a = {}) {
     const tab = await resolveTab(a, META);
     await ensureAttached(tab.id);

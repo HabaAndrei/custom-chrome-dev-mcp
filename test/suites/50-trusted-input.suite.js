@@ -162,6 +162,56 @@ export default defineSuite({
       return "cancelled";
     },
 
+    "setCPUThrottling actually slows down a CPU-bound loop": async ({ call, tab, js }) => {
+      const loop = "(() => { const t0 = performance.now(); let x = 0; for (let i = 0; i < 20000000; i++) x += Math.sqrt(i); return performance.now() - t0; })()";
+      try {
+        await call("setCPUThrottling", { rate: 1, tabId: tab });
+        const baseline = Number(await js(loop));
+        await call("setCPUThrottling", { rate: 4, tabId: tab });
+        const throttled = Number(await js(loop));
+        isAtLeast(throttled, baseline * 1.3, "throttled loop duration vs baseline");
+        return `${baseline.toFixed(0)}ms -> ${throttled.toFixed(0)}ms`;
+      } finally {
+        await call("setCPUThrottling", { rate: 1, tabId: tab }).catch(() => {});
+      }
+    },
+
+    "setGeolocation applies and clears an override": async ({ call, tab }) => {
+      const applied = await call("setGeolocation", { latitude: 51.5, longitude: -0.12, accuracy: 5, tabId: tab });
+      equals(applied.applied.latitude, 51.5, "latitude");
+      equals(applied.applied.longitude, -0.12, "longitude");
+      const cleared = await call("setGeolocation", { clear: true, tabId: tab });
+      isTrue(cleared.cleared, "cleared flag");
+      return "applied and cleared";
+    },
+
+    "setMediaFeatures overrides prefers-color-scheme": async ({ call, tab, js }) => {
+      try {
+        await call("setMediaFeatures", { colorScheme: "dark", tabId: tab });
+        equals(await js("matchMedia('(prefers-color-scheme: dark)').matches"), "true", "dark match");
+        equals(await js("matchMedia('(prefers-color-scheme: light)').matches"), "false", "light match");
+        return "dark mode emulated";
+      } finally {
+        await call("setMediaFeatures", { clear: true, tabId: tab }).catch(() => {});
+      }
+    },
+
+    "setMediaFeatures overrides prefers-reduced-motion": async ({ call, tab, js }) => {
+      try {
+        await call("setMediaFeatures", { reducedMotion: "reduce", tabId: tab });
+        equals(await js("matchMedia('(prefers-reduced-motion: reduce)').matches"), "true", "reduced-motion match");
+        return "reduced motion emulated";
+      } finally {
+        await call("setMediaFeatures", { clear: true, tabId: tab }).catch(() => {});
+      }
+    },
+
+    "setMediaFeatures clear reports a cleared flag": async ({ call, tab }) => {
+      const result = await call("setMediaFeatures", { clear: true, tabId: tab });
+      isTrue(result.cleared, "cleared flag");
+      return "cleared";
+    },
+
     "detach removes the debugger banner": async ({ call, tab }) => {
       const result = await call("detach", { tabId: tab });
       isTrue(result.detached, "detached flag");

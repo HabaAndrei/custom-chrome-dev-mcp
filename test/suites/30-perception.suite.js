@@ -99,5 +99,17 @@ export default defineSuite({
       equals(style.width, "64px", "width");
       return "filtered";
     },
+
+    "getBoxModel returns margin/border/padding/content rectangles": async ({ call, tab }) => {
+      // #drag is a plain div: width/height 64px, no margin/border/padding set - the
+      // default stylesheet gives it all zeros, so every box should read the same size.
+      const box = await call("getBoxModel", { selector: "#drag", tabId: tab });
+      equals(box.borderBox.width, 64, "border box width");
+      equals(box.borderBox.height, 64, "border box height");
+      equals(box.contentBox.width, 64, "content box width");
+      equals(box.margin.top, 0, "margin top");
+      equals(box.padding.left, 0, "padding left");
+      return "box model";
+    },
   },
 });

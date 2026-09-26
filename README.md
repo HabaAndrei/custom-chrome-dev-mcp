@@ -5,7 +5,7 @@ Code, or anything else that speaks MCP - drive **your real Chrome browser** the 
 person would. No telemetry, no third-party services, no cloud: everything runs on your
 machine behind a shared token.
 
-It exposes **58 tools** across navigation, tabs, perception, interaction, trusted
+It exposes **60 tools** across navigation, tabs, perception, interaction, trusted
 input, observability, capture, and storage.
 
 ---
@@ -200,7 +200,7 @@ Add the server under `mcpServers`:
 ### 4. Restart the MCP client
 
 MCP clients enumerate tools once, at startup - a server registered mid-session is
-invisible until you restart. Restart Claude, and the 58 tools appear.
+invisible until you restart. Restart Claude, and the 60 tools appear.
 
 On restart the client launches the server, which spawns `src/hub.js` if nothing is
 already listening on `127.0.0.1:9876`.
@@ -282,7 +282,7 @@ another local process from driving your browser.
 
 ---
 
-## Available tools (58)
+## Available tools (60)
 
 Elements are targeted three ways: **`selector`** (CSS), **`ref`** (a stable `eN` id
 from `snapshotA11y`), or **`name`** (accessible name, e.g. a button's label). "target"
@@ -332,6 +332,7 @@ autoplaying video, a notification popup) can't steal focus and misdirect an acti
 | `queryAll` | `selector`, `limit?` | text/href/value/visible for **every** match at once. |
 | `viewport` | - | `devicePixelRatio`, CSS viewport, scroll offset - how you map screenshot px → CSS px. |
 | `getComputedStyle` | target, `properties?` | Computed CSS - a curated default set (box model, typography, color), or just the properties you name. |
+| `getBoxModel` | target | Margin/border/padding/content rectangles (CSS px) - DevTools' Elements panel box model view. |
 
 ### Interaction - synthetic, fast
 
@@ -365,6 +366,9 @@ persistent yellow *"being debugged"* banner on the tab.
 | `drag` | `from`, `to` | Trusted press-move-release drag & drop. |
 | `uploadFile` | `selector`, `paths[]` | Set files on an `<input type=file>`, bypassing the OS picker. Absolute paths. |
 | `setViewport` | `width`, `height`, `deviceScaleFactor?`, `mobile?`, `userAgent?` | Emulate a viewport / device for responsive checks. |
+| `setCPUThrottling` | `rate` | Emulate a slower CPU (`rate`=slowdown multiplier, 1=real speed) - reproduce jank/slow-interaction bugs. |
+| `setGeolocation` | `latitude?`, `longitude?`, `accuracy?`, `clear?` | Override `navigator.geolocation` to a fixed position, or `clear:true` to remove it. |
+| `setMediaFeatures` | `colorScheme?`, `reducedMotion?`, `media?`, `clear?` | Emulate `prefers-color-scheme`/`prefers-reduced-motion`/print styles without touching OS settings. |
 | `handleDialog` | `accept?`, `promptText?` | **Pre-arm** an answer for the next `alert`/`confirm`/`prompt`. Set it *before* the action that triggers the dialog. |
 | `detach` | - | Detach the debugger and clear the banner. Re-attaches on the next CDP call. |
 
@@ -381,6 +385,7 @@ call** if you want load-time activity.
 | `evaluate` | `expression` | Run JS in the page's **real** context via CDP - bypasses the content-script CSP that blocks `eval`. Awaits promises. Not available on `chrome://` pages. |
 | `setNetworkConditions` | `preset?`, `offline?`, `latency?`, `downloadThroughput?`, `uploadThroughput?` | Throttle or take the tab offline, via the same presets DevTools' Network panel offers (`offline`/`slow3g`/`fast3g`/`none`). |
 | `getHar` | `urlContains?`, `limit?` | Export buffered requests as a HAR 1.2 document (`log.entries`) - the same format DevTools' "Save all as HAR" produces. Best-effort: headers/exact byte sizes aren't buffered. |
+| `getEventListeners` | `selector` | Listeners attached to one element - `{type: [{useCapture, passive, once}]}`, DevTools' Event Listeners panel. Selector only (not ref/name). |
 
 ### Capture
 
@@ -494,7 +499,7 @@ the real hub**, so a passing run exercises the actual message contract. Each sui
 mirrors a tool group, and every test starts from a reset fixture page - no test
 inherits another's mutations.
 
-At the end it prints **tool coverage** and fails if any of the 58 tools went
+At the end it prints **tool coverage** and fails if any of the 60 tools went
 unexercised.
 
 ### Options

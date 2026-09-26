@@ -10,4 +10,5 @@ export const perceptionHandlers = {
   async queryAll(a) { return domOp("queryAll", { selector: a.selector, limit: a.limit }, a); },
   async viewport(a = {}) { return domOp("viewport", {}, a); },
   async getComputedStyle(a) { return domOp("getComputedStyle", { target: toTarget(a), properties: a.properties }, a); },
+  async getBoxModel(a) { return domOp("getBoxModel", { target: toTarget(a) }, a); },
 };

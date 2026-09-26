@@ -159,5 +159,20 @@ export default defineSuite({
       equals(har.log.entries.length, 0, "har entries");
       return "empty";
     },
+
+    "getEventListeners reports listeners attached to a real element": async ({ call, tab }) => {
+      // #btn has pointerdown/mousedown/pointerup/mouseup/click wired individually
+      // (for the event-order test) PLUS a separate click listener that increments a
+      // counter - two independent click listeners, one each of the rest.
+      const result = await call("getEventListeners", { selector: "#btn", tabId: tab });
+      isAtLeast(result.listeners.click?.length || 0, 2, "click listener count");
+      isAtLeast(result.listeners.mousedown?.length || 0, 1, "mousedown listener count");
+      return `${Object.keys(result.listeners).length} event types`;
+    },
+
+    "getEventListeners rejects a missing selector": async ({ call, tab }) => {
+      await rejects(() => call("getEventListeners", { selector: "#does-not-exist", tabId: tab }), "not found", "getEventListeners");
+      return "rejected";
+    },
   },
 });

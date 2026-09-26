@@ -135,6 +135,23 @@
     return out;
   }
 
+  /** Margin/border/padding/content rectangles in CSS px, matching DevTools' box model view. */
+  function boxModel(el) {
+    const cs = getComputedStyle(el);
+    const num = (v) => parseFloat(v) || 0;
+    const rect = el.getBoundingClientRect(); // the border box, regardless of box-sizing
+    const margin = { top: num(cs.marginTop), right: num(cs.marginRight), bottom: num(cs.marginBottom), left: num(cs.marginLeft) };
+    const border = { top: num(cs.borderTopWidth), right: num(cs.borderRightWidth), bottom: num(cs.borderBottomWidth), left: num(cs.borderLeftWidth) };
+    const padding = { top: num(cs.paddingTop), right: num(cs.paddingRight), bottom: num(cs.paddingBottom), left: num(cs.paddingLeft) };
+
+    const borderBox = { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+    const paddingBox = { x: rect.x + border.left, y: rect.y + border.top, width: rect.width - border.left - border.right, height: rect.height - border.top - border.bottom };
+    const contentBox = { x: paddingBox.x + padding.left, y: paddingBox.y + padding.top, width: paddingBox.width - padding.left - padding.right, height: paddingBox.height - padding.top - padding.bottom };
+    const marginBox = { x: rect.x - margin.left, y: rect.y - margin.top, width: rect.width + margin.left + margin.right, height: rect.height + margin.top + margin.bottom };
+
+    return { margin, border, padding, marginBox, borderBox, paddingBox, contentBox };
+  }
+
   // Read an element's current text, treating inputs and contenteditables uniformly.
   function currentValue(el) {
     if (el.isContentEditable) return (el.innerText || el.textContent || "").trim();
@@ -391,6 +408,7 @@
     },
     getHtml: () => document.body.outerHTML.slice(0, 50000),
     getComputedStyle: ({ target, properties }) => readComputedStyle(resolveTarget(target), properties),
+    getBoxModel: ({ target }) => boxModel(resolveTarget(target)),
     setAttribute: ({ target, name, value }) => {
       const el = resolveTarget(target);
       el.setAttribute(name, value);
