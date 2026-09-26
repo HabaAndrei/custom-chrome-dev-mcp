@@ -5,7 +5,7 @@ Code, or anything else that speaks MCP - drive **your real Chrome browser** the 
 person would. No telemetry, no third-party services, no cloud: everything runs on your
 machine behind a shared token.
 
-It exposes **56 tools** across navigation, tabs, perception, interaction, trusted
+It exposes **58 tools** across navigation, tabs, perception, interaction, trusted
 input, observability, capture, and storage.
 
 ---
@@ -200,7 +200,7 @@ Add the server under `mcpServers`:
 ### 4. Restart the MCP client
 
 MCP clients enumerate tools once, at startup - a server registered mid-session is
-invisible until you restart. Restart Claude, and the 56 tools appear.
+invisible until you restart. Restart Claude, and the 58 tools appear.
 
 On restart the client launches the server, which spawns `src/hub.js` if nothing is
 already listening on `127.0.0.1:9876`.
@@ -282,7 +282,7 @@ another local process from driving your browser.
 
 ---
 
-## Available tools (56)
+## Available tools (58)
 
 Elements are targeted three ways: **`selector`** (CSS), **`ref`** (a stable `eN` id
 from `snapshotA11y`), or **`name`** (accessible name, e.g. a button's label). "target"
@@ -379,6 +379,8 @@ call** if you want load-time activity.
 | `listNetworkRequests` | `urlContains?`, `status?`, `failedOnly?`, `limit?` | Buffered requests: method, url, status, type, timing. |
 | `getNetworkRequest` | `requestId`, `includeBody?` | One request in full; `includeBody` also fetches the (truncated) response body. |
 | `evaluate` | `expression` | Run JS in the page's **real** context via CDP - bypasses the content-script CSP that blocks `eval`. Awaits promises. Not available on `chrome://` pages. |
+| `setNetworkConditions` | `preset?`, `offline?`, `latency?`, `downloadThroughput?`, `uploadThroughput?` | Throttle or take the tab offline, via the same presets DevTools' Network panel offers (`offline`/`slow3g`/`fast3g`/`none`). |
+| `getHar` | `urlContains?`, `limit?` | Export buffered requests as a HAR 1.2 document (`log.entries`) - the same format DevTools' "Save all as HAR" produces. Best-effort: headers/exact byte sizes aren't buffered. |
 
 ### Capture
 
@@ -492,7 +494,7 @@ the real hub**, so a passing run exercises the actual message contract. Each sui
 mirrors a tool group, and every test starts from a reset fixture page - no test
 inherits another's mutations.
 
-At the end it prints **tool coverage** and fails if any of the 56 tools went
+At the end it prints **tool coverage** and fails if any of the 58 tools went
 unexercised.
 
 ### Options

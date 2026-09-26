@@ -1,6 +1,6 @@
 // Covers src/tools/observability.js - console, network, page-context evaluation.
 import { defineSuite } from "../lib/runner.js";
-import { contains, equals, fail, isAtLeast, rejects } from "../lib/assert.js";
+import { contains, equals, fail, hasKey, isAtLeast, rejects } from "../lib/assert.js";
 import { eventually } from "../lib/wait.js";
 
 /** Unique per run so a stale buffer entry can never make a test pass by accident. */
@@ -112,6 +112,52 @@ export default defineSuite({
     "getNetworkRequest rejects an unknown id": async ({ call, tab }) => {
       await rejects(() => call("getNetworkRequest", { requestId: "no-such-request-id", tabId: tab }), "no such requestId", "getNetworkRequest");
       return "rejected";
+    },
+
+    "setNetworkConditions offline blocks a fetch, none restores it": async ({ call, tab, js }) => {
+      await call("setNetworkConditions", { preset: "offline", tabId: tab });
+      const blocked = await js(`fetch('/ping?tag=${marker("off")}').then(() => "ok").catch(() => "blocked")`);
+      equals(blocked, "blocked", "fetch while offline");
+
+      await call("setNetworkConditions", { preset: "none", tabId: tab });
+      const restored = await js(`fetch('/ping?tag=${marker("on")}').then(() => "ok").catch(() => "blocked")`);
+      equals(restored, "ok", "fetch after restoring");
+      return "offline then restored";
+    },
+
+    "setNetworkConditions accepts explicit latency/throughput overrides": async ({ call, tab }) => {
+      const result = await call("setNetworkConditions", { latency: 123, downloadThroughput: 5000, uploadThroughput: 5000, tabId: tab });
+      equals(result.applied.latency, 123, "latency");
+      equals(result.applied.downloadThroughput, 5000, "downloadThroughput");
+      await call("setNetworkConditions", { preset: "none", tabId: tab }); // don't leak throttling into later tests
+      return "custom conditions";
+    },
+
+    "setNetworkConditions rejects an unknown preset": async ({ call, tab }) => {
+      await rejects(() => call("setNetworkConditions", { preset: "bogus", tabId: tab }), "unknown preset", "setNetworkConditions");
+      return "rejected";
+    },
+
+    "getHar exports a buffered request as a HAR 1.2 entry": async ({ call, tab, js }) => {
+      const token = marker("har");
+      await js(`fetch('/ping?tag=${token}').catch(() => {})`);
+      const har = await eventually(async () => {
+        const h = await call("getHar", { tabId: tab, urlContains: token });
+        return h.log.entries.length ? h : false;
+      }, { what: "the fetch to appear in the HAR export" });
+
+      equals(har.log.version, "1.2", "HAR version");
+      const entry = har.log.entries[0];
+      contains(entry.request.url, token, "HAR entry url");
+      hasKey(entry, "startedDateTime", "HAR entry");
+      hasKey(entry, "timings", "HAR entry");
+      return "har entry";
+    },
+
+    "getHar returns no entries for a urlContains match with nothing buffered": async ({ call, tab }) => {
+      const har = await call("getHar", { tabId: tab, urlContains: "no-such-request-xyz" });
+      equals(har.log.entries.length, 0, "har entries");
+      return "empty";
     },
   },
 });

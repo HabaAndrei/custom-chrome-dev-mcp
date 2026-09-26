@@ -57,20 +57,28 @@ export function installBufferListeners() {
 
       case "Network.requestWillBeSent": {
         const m = networkFor(tabId);
-        m.set(params.requestId, { requestId: params.requestId, method: params.request?.method, url: params.request?.url, type: params.type, ts: params.timestamp });
+        // timestamp is CDP's monotonic clock (for measuring elapsed time); wallTime is
+        // real UTC seconds (for HAR's startedDateTime) - neither substitutes for the other.
+        m.set(params.requestId, { requestId: params.requestId, method: params.request?.method, url: params.request?.url, type: params.type, ts: params.timestamp, wallTime: params.wallTime });
         if (m.size > BUFFER_CAP) m.delete(m.keys().next().value);
         break;
       }
 
       case "Network.responseReceived": {
         const rec = networkBuf.get(tabId)?.get(params.requestId);
-        if (rec) { rec.status = params.response?.status; rec.mimeType = params.response?.mimeType; rec.type = params.type || rec.type; }
+        if (rec) { rec.status = params.response?.status; rec.mimeType = params.response?.mimeType; rec.type = params.type || rec.type; rec.respTs = params.timestamp; }
+        break;
+      }
+
+      case "Network.loadingFinished": {
+        const rec = networkBuf.get(tabId)?.get(params.requestId);
+        if (rec) { rec.finishedTs = params.timestamp; rec.encodedDataLength = params.encodedDataLength; }
         break;
       }
 
       case "Network.loadingFailed": {
         const rec = networkBuf.get(tabId)?.get(params.requestId);
-        if (rec) { rec.failed = true; rec.errorText = params.errorText; }
+        if (rec) { rec.failed = true; rec.errorText = params.errorText; rec.finishedTs = params.timestamp; }
         break;
       }
     }
