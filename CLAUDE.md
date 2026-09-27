@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A local-only MCP server (`custom-chrome-dev-mcp`) that drives the user's real Chrome browser via a companion MV3 extension, exposing 45 tools across navigation, tabs, perception, interaction, trusted input, observability, and capture. Its entire premise is behaving like a *human* using the browser (trusted CDP input, real focus, real keystrokes) rather than firing synthetic DOM events — see README.md for the full rationale and tool reference.
+A local-only MCP server (`custom-chrome-dev-mcp`) that drives the user's real Chrome browser via a companion MV3 extension, exposing 60 tools across navigation, tabs, perception, interaction, trusted input, observability, capture, and storage. Its entire premise is behaving like a *human* using the browser (trusted CDP input, real focus, real keystrokes) rather than firing synthetic DOM events — see README.md for the full rationale and tool reference.
 
 ## Commands
 
