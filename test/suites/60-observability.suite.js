@@ -6,6 +6,13 @@ import { eventually } from "../lib/wait.js";
 /** Unique per run so a stale buffer entry can never make a test pass by accident. */
 const marker = (label) => `cdm-${label}-${Math.random().toString(36).slice(2, 10)}`;
 
+/** Header names arrive with whatever casing the sender used - look up case-insensitively. */
+const findHeader = (headers, name) => {
+  const lower = name.toLowerCase();
+  for (const [k, v] of Object.entries(headers || {})) if (k.toLowerCase() === lower) return v;
+  return undefined;
+};
+
 export default defineSuite({
   name: "observability",
   lane: "browser",
@@ -109,6 +116,31 @@ export default defineSuite({
       return "body present";
     },
 
+    "getNetworkRequest includes real request and response headers": async ({ call, tab, js }) => {
+      const token = marker("headers");
+      await js(`fetch('/ping?tag=${token}').catch(() => {})`);
+      const record = await eventually(async () => {
+        const { requests } = await call("listNetworkRequests", { tabId: tab, urlContains: token });
+        return requests.find((r) => r.status) || false;
+      }, { what: "the response to complete" });
+
+      const detail = await call("getNetworkRequest", { requestId: record.requestId, tabId: tab });
+      isAtLeast(Object.keys(detail.requestHeaders || {}).length, 1, "request header count");
+      contains(findHeader(detail.responseHeaders, "content-type") || "", "application/json", "response content-type header");
+      return "real headers";
+    },
+
+    "listNetworkRequests omits headers from the compact summary": async ({ call, tab, js }) => {
+      const token = marker("nohead");
+      await js(`fetch('/ping?tag=${token}').catch(() => {})`);
+      const record = await eventually(async () => {
+        const { requests } = await call("listNetworkRequests", { tabId: tab, urlContains: token });
+        return requests[0] || false;
+      }, { what: "the request to be buffered" });
+      if ("requestHeaders" in record || "responseHeaders" in record) fail("listNetworkRequests leaked headers into the summary view");
+      return "compact";
+    },
+
     "getNetworkRequest rejects an unknown id": async ({ call, tab }) => {
       await rejects(() => call("getNetworkRequest", { requestId: "no-such-request-id", tabId: tab }), "no such requestId", "getNetworkRequest");
       return "rejected";
@@ -152,6 +184,22 @@ export default defineSuite({
       hasKey(entry, "startedDateTime", "HAR entry");
       hasKey(entry, "timings", "HAR entry");
       return "har entry";
+    },
+
+    "getHar entries carry real header pairs": async ({ call, tab, js }) => {
+      const token = marker("harheaders");
+      await js(`fetch('/ping?tag=${token}').catch(() => {})`);
+      const har = await eventually(async () => {
+        const h = await call("getHar", { tabId: tab, urlContains: token });
+        return h.log.entries.length ? h : false;
+      }, { what: "the fetch to appear in the HAR export" });
+
+      const entry = har.log.entries[0];
+      isAtLeast(entry.request.headers.length, 1, "HAR request header count");
+      const ct = entry.response.headers.find((h) => h.name.toLowerCase() === "content-type");
+      if (!ct) fail("HAR response headers missing content-type");
+      contains(ct.value, "application/json", "HAR content-type value");
+      return "real headers in HAR";
     },
 
     "getHar returns no entries for a urlContains match with nothing buffered": async ({ call, tab }) => {

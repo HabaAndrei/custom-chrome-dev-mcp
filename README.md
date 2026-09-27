@@ -381,10 +381,10 @@ call** if you want load-time activity.
 | --- | --- | --- |
 | `getConsole` | `level?`, `limit?`, `clear?` | Buffered console logs, warnings, errors, and uncaught exceptions. |
 | `listNetworkRequests` | `urlContains?`, `status?`, `failedOnly?`, `limit?` | Buffered requests: method, url, status, type, timing. |
-| `getNetworkRequest` | `requestId`, `includeBody?` | One request in full; `includeBody` also fetches the (truncated) response body. |
+| `getNetworkRequest` | `requestId`, `includeBody?` | One request in full - including `requestHeaders`/`responseHeaders` (CORS, `Content-Type`, `Set-Cookie`, auth, etc.), omitted from the list view. `includeBody` also fetches the (truncated) response body. |
 | `evaluate` | `expression` | Run JS in the page's **real** context via CDP - bypasses the content-script CSP that blocks `eval`. Awaits promises. Not available on `chrome://` pages. |
 | `setNetworkConditions` | `preset?`, `offline?`, `latency?`, `downloadThroughput?`, `uploadThroughput?` | Throttle or take the tab offline, via the same presets DevTools' Network panel offers (`offline`/`slow3g`/`fast3g`/`none`). |
-| `getHar` | `urlContains?`, `limit?` | Export buffered requests as a HAR 1.2 document (`log.entries`) - the same format DevTools' "Save all as HAR" produces. Best-effort: headers/exact byte sizes aren't buffered. |
+| `getHar` | `urlContains?`, `limit?` | Export buffered requests as a HAR 1.2 document (`log.entries`), with real headers - the same format DevTools' "Save all as HAR" produces. Best-effort: exact byte/header sizes aren't buffered. |
 | `getEventListeners` | `selector` | Listeners attached to one element via CDP `DOMDebugger` - `{type: [{useCapture, passive, once}]}`, DevTools' Event Listeners panel. Selector only (not ref/name). |
 
 ### Capture

@@ -23,8 +23,11 @@ const NETWORK_PRESETS = {
   none: { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 },
 };
 
-/** Best-effort HAR 1.2 entry - headers and exact byte sizes aren't buffered, so those
- * fields are approximated (-1, the HAR spec's "unknown" sentinel) rather than invented. */
+/** CDP hands headers over as a plain {name: value} object; HAR wants [{name, value}]. */
+const headerPairs = (headers) => Object.entries(headers || {}).map(([name, value]) => ({ name, value: String(value) }));
+
+/** Best-effort HAR 1.2 entry - real headers (CDP gives us those for free), but exact
+ * byte sizes aren't buffered, so those fields use -1, the HAR spec's own "unknown" sentinel. */
 function toHarEntry(rec) {
   const startedDateTime = rec.wallTime != null ? new Date(rec.wallTime * 1000).toISOString() : new Date(0).toISOString();
   const endTs = rec.finishedTs ?? rec.respTs;
@@ -32,12 +35,12 @@ function toHarEntry(rec) {
   return {
     startedDateTime,
     time,
-    request: { method: rec.method || "GET", url: rec.url, httpVersion: "HTTP/1.1", headers: [], queryString: [], cookies: [], headersSize: -1, bodySize: -1 },
+    request: { method: rec.method || "GET", url: rec.url, httpVersion: "HTTP/1.1", headers: headerPairs(rec.requestHeaders), queryString: [], cookies: [], headersSize: -1, bodySize: -1 },
     response: {
       status: rec.status || 0,
       statusText: rec.failed ? rec.errorText || "failed" : "",
       httpVersion: "HTTP/1.1",
-      headers: [],
+      headers: headerPairs(rec.responseHeaders),
       cookies: [],
       content: { size: rec.encodedDataLength || 0, mimeType: rec.mimeType || "" },
       redirectURL: "",
@@ -73,7 +76,10 @@ export const observabilityHandlers = {
     if (a.status != null) list = list.filter((r) => r.status === a.status);
     if (a.failedOnly) list = list.filter((r) => r.failed);
 
-    return { count: list.length, requests: list.slice(-(a.limit || DEFAULT_LIMIT)) };
+    // Headers are the whole point of getNetworkRequest's detail view; keeping them out
+    // of the list view is what keeps a 100-request list from becoming a wall of text.
+    const summaries = list.slice(-(a.limit || DEFAULT_LIMIT)).map(({ requestHeaders, responseHeaders, ...rest }) => rest);
+    return { count: list.length, requests: summaries };
   },
 
   async getNetworkRequest(a) {

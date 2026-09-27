@@ -59,14 +59,23 @@ export function installBufferListeners() {
         const m = networkFor(tabId);
         // timestamp is CDP's monotonic clock (for measuring elapsed time); wallTime is
         // real UTC seconds (for HAR's startedDateTime) - neither substitutes for the other.
-        m.set(params.requestId, { requestId: params.requestId, method: params.request?.method, url: params.request?.url, type: params.type, ts: params.timestamp, wallTime: params.wallTime });
+        m.set(params.requestId, {
+          requestId: params.requestId, method: params.request?.method, url: params.request?.url, type: params.type,
+          ts: params.timestamp, wallTime: params.wallTime, requestHeaders: params.request?.headers || {},
+        });
         if (m.size > BUFFER_CAP) m.delete(m.keys().next().value);
         break;
       }
 
       case "Network.responseReceived": {
         const rec = networkBuf.get(tabId)?.get(params.requestId);
-        if (rec) { rec.status = params.response?.status; rec.mimeType = params.response?.mimeType; rec.type = params.type || rec.type; rec.respTs = params.timestamp; }
+        if (rec) {
+          rec.status = params.response?.status;
+          rec.mimeType = params.response?.mimeType;
+          rec.type = params.type || rec.type;
+          rec.respTs = params.timestamp;
+          rec.responseHeaders = params.response?.headers || {};
+        }
         break;
       }
 
