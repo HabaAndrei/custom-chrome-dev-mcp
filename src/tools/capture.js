@@ -13,7 +13,7 @@ import { asText } from "./schemas.js";
 export function registerCaptureTools(server) {
   server.tool(
     "screenshot",
-    `Screenshot the VISIBLE viewport and save it under ${CAPTURE_DIR}, AND return the image inline plus {devicePixelRatio, cssViewport} - so you see it in one call (no separate file read) and can map screenshot pixels to CSS coordinates (cssX = screenshotX / devicePixelRatio). For the whole scrollable page use fullPageScreenshot. 'path' is a filename or a path inside that folder; add tabId to target a specific tab.`,
+    `Screenshot the visible viewport, saved under ${CAPTURE_DIR} and returned inline with {devicePixelRatio, cssViewport} (cssX = screenshotX / devicePixelRatio) - one call, no file read needed. Use fullPageScreenshot for the whole scrollable page. path is a filename or path inside that folder.`,
     { path: z.string().optional(), format: z.enum(["png", "jpeg"]).optional(), tabId: z.number().optional() },
     async ({ path, format, tabId }) => {
       const res = await call("screenshot", { format: format || "png", tabId });
@@ -30,7 +30,7 @@ export function registerCaptureTools(server) {
 
   server.tool(
     "fullPageScreenshot",
-    `Capture the ENTIRE scrollable page (beyond the visible viewport) via CDP and save it under ${CAPTURE_DIR}. Use screenshot for just the visible area.`,
+    `Capture the entire scrollable page (beyond the visible viewport) via CDP, saved under ${CAPTURE_DIR}. Use screenshot for just the visible area.`,
     { path: z.string().optional(), tabId: z.number().optional() },
     async ({ path, tabId }) => {
       const res = await call("fullPageScreenshot", { tabId });
@@ -40,7 +40,7 @@ export function registerCaptureTools(server) {
 
   server.tool(
     "record",
-    `Record the active tab to a video via the DevTools protocol (no user gesture needed). action:"start" begins recording the tab's viewport, action:"stop" ends it and saves a .webm under ${CAPTURE_DIR}, action:"status" reports whether recording is in progress. Attaches the debugger (shows a "being debugged" banner) and records the TAB - not the OS desktop, which Chrome cannot capture without a manual screen picker.`,
+    `Record the active tab to .webm via CDP screencast (no user gesture needed). action: start/stop/status; stop saves under ${CAPTURE_DIR}. Attaches the debugger (banner). Records the tab, not the OS desktop.`,
     { action: z.enum(["start", "stop", "status"]).optional(), path: z.string().optional(), tabId: z.number().optional() },
     async ({ action, path, tabId }) => {
       const res = await call("record", { action: action || "status", tabId });

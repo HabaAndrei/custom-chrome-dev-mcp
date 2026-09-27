@@ -11,8 +11,8 @@ const SAME_SITE = z.enum(["Strict", "Lax", "None"]);
 export function registerStorageTools(server) {
   const tool = definePassthrough(server);
 
-  tool("getCookies", "Return every cookie visible to the tab's current URL, via the CDP Network domain (includes httpOnly cookies the page's own JS cannot read).");
-  tool("setCookie", "Set a cookie via the CDP Network domain. url defaults to the tab's current URL; pass domain/path/secure/httpOnly/sameSite/expires to match the cookie you need.", {
+  tool("getCookies", "Every cookie visible to the tab's current URL, via CDP Network domain (includes httpOnly cookies the page's own JS can't read).");
+  tool("setCookie", "Set a cookie via CDP Network domain. url defaults to the tab's current URL; pass domain/path/secure/httpOnly/sameSite/expires to match the cookie you need.", {
     name: z.string(),
     value: z.string(),
     url: z.string().optional(),

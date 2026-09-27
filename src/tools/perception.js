@@ -10,7 +10,7 @@ export function registerPerceptionTools(server) {
   tool("getText", "Return the trimmed innerText of a single element (by selector, ref, or accessible name); use queryAll for many at once.", { ...TARGET });
   tool("getAttribute", "Return an element's attribute, falling back to the matching DOM property if absent (e.g. value, checked, href).", { ...TARGET, attr: z.string() });
   tool("queryAll", "Return text/href/value/visible for every element matching a CSS selector (capped by limit). Use to extract a list of elements at once.", { selector: z.string(), limit: z.number().optional() });
-  tool("viewport", "Return the tab's devicePixelRatio, CSS viewport size, and scroll offset. Use to convert screenshot pixels (device px) to the CSS px realClick/x,y use: cssX = screenshotX / devicePixelRatio.", {});
-  tool("getComputedStyle", "Return computed CSS for one element. Pass properties (camelCase CSS property names, e.g. ['display','color']) for just those; omit it for a curated default set covering box model, typography, and color.", { ...TARGET, properties: z.array(z.string()).optional() });
+  tool("viewport", "Tab's devicePixelRatio, CSS viewport size, and scroll offset - use to convert screenshot px to CSS px: cssX = screenshotX / devicePixelRatio (what realClick/x,y expect).", {});
+  tool("getComputedStyle", "Computed CSS for one element. Pass properties (camelCase names, e.g. ['display','color']) for just those; omit for a curated default set (box model, typography, color).", { ...TARGET, properties: z.array(z.string()).optional() });
   tool("getBoxModel", "Return the margin/border/padding/content rectangles (CSS px) for one element, matching DevTools' Elements panel box model view.", { ...TARGET });
 }
