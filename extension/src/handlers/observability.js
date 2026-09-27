@@ -131,31 +131,29 @@ export const observabilityHandlers = {
   },
 
   async getEventListeners(a) {
-    // getEventListeners() is a Command Line API function, only reachable via
-    // includeCommandLineAPI:true - it isn't defined in the page's normal JS context,
-    // and it isn't reachable from the walker's ISOLATED world either. That also means
-    // it can only take a selector: refs live in the walker's own ref map, which this
-    // evaluate call has no access to.
+    // Command Line API functions (getEventListeners(), $, $$, ...) only get injected
+    // via includeCommandLineAPI:true for the DevTools frontend's own CDP session - a
+    // chrome.debugger-attached client like this extension never gets them, even with
+    // that flag set (confirmed live: ReferenceError, not a permissions error). The
+    // DOMDebugger domain is the real CDP-native equivalent, keyed off a remote object
+    // rather than a ref, which is why this can only take a selector.
     const tab = await resolveTab(a);
     await ensureAttached(tab.id);
 
-    const expression = `(() => {
-      const el = document.querySelector(${JSON.stringify(a.selector)});
-      if (!el) return { __notFound: true };
-      const map = getEventListeners(el);
-      const out = {};
-      for (const [type, list] of Object.entries(map)) {
-        out[type] = list.map((l) => ({ useCapture: !!l.useCapture, passive: !!l.passive, once: !!l.once }));
-      }
-      return out;
-    })()`;
-    const r = await cdp(tab.id, "Runtime.evaluate", { expression, returnByValue: true, includeCommandLineAPI: true });
-    if (r.exceptionDetails)
-      throw new Error(r.exceptionDetails.exception?.description || r.exceptionDetails.text || "eval error");
+    const evalResult = await cdp(tab.id, "Runtime.evaluate", { expression: `document.querySelector(${JSON.stringify(a.selector)})` });
+    if (evalResult.exceptionDetails)
+      throw new Error(evalResult.exceptionDetails.exception?.description || evalResult.exceptionDetails.text || "eval error");
+    const objectId = evalResult.result?.objectId;
+    if (!objectId) throw new Error("selector not found: " + a.selector);
 
-    const value = r.result?.value;
-    if (value?.__notFound) throw new Error("selector not found: " + a.selector);
-    return { selector: a.selector, listeners: value || {} };
+    try {
+      const { listeners } = await cdp(tab.id, "DOMDebugger.getEventListeners", { objectId });
+      const out = {};
+      for (const l of listeners) (out[l.type] ||= []).push({ useCapture: !!l.useCapture, passive: !!l.passive, once: !!l.once });
+      return { selector: a.selector, listeners: out };
+    } finally {
+      await cdp(tab.id, "Runtime.releaseObject", { objectId }).catch(() => {});
+    }
   },
 
   async getHar(a = {}) {

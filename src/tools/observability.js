@@ -19,5 +19,5 @@ export function registerObservabilityTools(server) {
     uploadThroughput: z.number().optional(),
   });
   tool("getHar", "Export the tab's buffered network requests as a HAR 1.2 document (log.entries) - the same format DevTools' 'Save all as HAR' produces. Best-effort: headers and exact byte sizes aren't buffered, so those fields are approximated (-1, HAR's own 'unknown' sentinel). Filter with urlContains; cap with limit.", { urlContains: z.string().optional(), limit: z.number().optional() });
-  tool("getEventListeners", "Return the event listeners attached to one element (by CSS selector only - not ref/name, since this runs via the Command Line API's getEventListeners(), unreachable from the walker's ref map), matching DevTools' Event Listeners panel: {type: [{useCapture, passive, once}]}.", { selector: z.string() });
+  tool("getEventListeners", "Return the event listeners attached to one element (by CSS selector only - not ref/name, since this resolves a remote object via the CDP DOMDebugger domain rather than the walker's ref map), matching DevTools' Event Listeners panel: {type: [{useCapture, passive, once}]}.", { selector: z.string() });
 }

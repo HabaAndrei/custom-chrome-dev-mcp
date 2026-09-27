@@ -385,7 +385,7 @@ call** if you want load-time activity.
 | `evaluate` | `expression` | Run JS in the page's **real** context via CDP - bypasses the content-script CSP that blocks `eval`. Awaits promises. Not available on `chrome://` pages. |
 | `setNetworkConditions` | `preset?`, `offline?`, `latency?`, `downloadThroughput?`, `uploadThroughput?` | Throttle or take the tab offline, via the same presets DevTools' Network panel offers (`offline`/`slow3g`/`fast3g`/`none`). |
 | `getHar` | `urlContains?`, `limit?` | Export buffered requests as a HAR 1.2 document (`log.entries`) - the same format DevTools' "Save all as HAR" produces. Best-effort: headers/exact byte sizes aren't buffered. |
-| `getEventListeners` | `selector` | Listeners attached to one element - `{type: [{useCapture, passive, once}]}`, DevTools' Event Listeners panel. Selector only (not ref/name). |
+| `getEventListeners` | `selector` | Listeners attached to one element via CDP `DOMDebugger` - `{type: [{useCapture, passive, once}]}`, DevTools' Event Listeners panel. Selector only (not ref/name). |
 
 ### Capture
 
