@@ -394,7 +394,7 @@ Saved into the capture directory (`~/Downloads` by default - see
 
 | Tool | Args | Description |
 | --- | --- | --- |
-| `screenshot` | `path?`, `format?`, `tabId?` | Visible viewport - **full-res PNG/JPEG saved to disk, plus a downscaled JPEG returned inline** (≤1568px, ≤1.15MP, never above CSS size) with `{inline: {width, height, scale}, devicePixelRatio, cssViewport}`, so the model sees it in one call. `cssX = inlineX / inline.scale` (`null` under `setViewport` emulation). The tab must be the one showing in its window - `activateTab` a background tab first. The inline copy is bounded because a device-pixel PNG can exceed the API's image limits and break every later request in the conversation. |
+| `screenshot` | `path?`, `format?`, `tabId?` | Visible viewport - **full-res PNG/JPEG saved to disk, plus a downscaled JPEG returned inline** (≤1568px, ≤1.15MP, never above CSS size) with `{inline: {width, height, scale}, devicePixelRatio, cssViewport}`, so the model sees it in one call. `cssX = inlineX / inline.scale` (`null` when the image does not map onto the viewport, e.g. under `setViewport` emulation). The tab must be the one showing in its window - `activateTab` a background tab first. The inline copy is bounded because a device-pixel PNG can exceed the API's image limits and break every later request in the conversation. |
 | `fullPageScreenshot` | `path?`, `tabId?` | The **entire scrollable page** beyond the viewport, via CDP. |
 | `record` | `action`, `path?`, `tabId?` | `start` / `stop` / `status` tab recording → `.webm`. Fully MCP-driven - **no toolbar click or user gesture needed**. Records the **tab**, not the desktop. |
 

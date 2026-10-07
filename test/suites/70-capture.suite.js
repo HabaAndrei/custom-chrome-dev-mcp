@@ -68,16 +68,21 @@ export default defineSuite({
       return "refused";
     },
 
-    "screenshot under setViewport emulation stays full size and reports no scale": async ({ call, tab }) => {
-      const plain = await call("screenshot", { tabId: tab });
-      await call("setViewport", { width: 400, height: 800, deviceScaleFactor: 3, mobile: true, tabId: tab });
+    "screenshot under setViewport emulation is not shrunk by the emulated pixel ratio": async ({ call, tab }) => {
+      const DPR = 3;
+      await call("setViewport", { width: 400, height: 800, deviceScaleFactor: DPR, mobile: true, tabId: tab });
       try {
-        const emulated = await call("screenshot", { tabId: tab });
-        // Emulation changes the page's devicePixelRatio, not what gets captured - so the
-        // inline copy must not shrink, and no single scale maps the image back.
-        equals(emulated.inline.width, plain.inline.width, "inline width under emulation");
-        equals(emulated.inline.scale, null, "inline.scale under emulation");
-        return `${emulated.inline.width}px, scale=null`;
+        const shot = await call("screenshot", { tabId: tab });
+        // What Chrome captures under emulation varies (the emulated viewport, or the whole
+        // window), so assert the invariants rather than a size: the emulated ratio must not
+        // drive the downscale, and a scale is only reported when the capture IS the viewport.
+        const captureWidth = decode(shot.b64).readUInt32BE(16); // PNG IHDR width
+        const { width, height, scale } = shot.inline;
+        isTrue(width > captureWidth / DPR, `inline width ${width} > capture ${captureWidth} / emulated dpr ${DPR}`);
+        isTrue(Math.max(width, height) <= INLINE_SHOT_MAX_EDGE && width * height <= INLINE_SHOT_MAX_PIXELS, "inline within API limits");
+        const mapsBack = Math.abs(shot.cssViewport.width * shot.devicePixelRatio - captureWidth) <= Math.ceil(shot.devicePixelRatio);
+        equals(scale === null, !mapsBack, `scale is null exactly when the capture is not the viewport (scale=${scale})`);
+        return `capture ${captureWidth}px -> inline ${width}x${height}, scale=${scale === null ? "null" : scale.toFixed(3)}`;
       } finally {
         await call("detach", { tabId: tab }).catch(() => {}); // dropping the CDP session clears emulation
       }

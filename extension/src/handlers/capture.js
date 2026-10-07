@@ -61,16 +61,16 @@ async function inlineCopy(dataUrl, tab, meta) {
 }
 
 // Chrome allows only 2 captureVisibleTab calls per second, so back-to-back screenshots
-// (or parallel tool calls) fail outright. Wait out the window and retry instead.
-async function captureVisible(windowId, format) {
-  for (let attempt = 0; ; attempt++) {
-    try {
-      return await chrome.tabs.captureVisibleTab(windowId, { format });
-    } catch (err) {
-      if (attempt >= 3 || !/MAX_CAPTURE_VISIBLE_TAB_CALLS_PER_SECOND/.test(err?.message)) throw err;
-      await new Promise((r) => setTimeout(r, 600));
-    }
-  }
+// (or parallel tool calls) fail outright. Retrying races the other waiters, so queue
+// instead: each capture starts at least CAPTURE_GAP_MS after the previous one ended,
+// which keeps any one-second window to two calls.
+const CAPTURE_GAP_MS = 550;
+let captureQueue = Promise.resolve();
+
+function captureVisible(windowId, format) {
+  const run = captureQueue.then(() => chrome.tabs.captureVisibleTab(windowId, { format }));
+  captureQueue = run.catch(() => {}).then(() => new Promise((r) => setTimeout(r, CAPTURE_GAP_MS)));
+  return run;
 }
 
 export const captureHandlers = {
