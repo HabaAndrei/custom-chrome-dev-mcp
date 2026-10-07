@@ -18,6 +18,14 @@ export const BANLIST = [
 /** Per-tab ring buffer cap for console entries and network records. */
 export const BUFFER_CAP = 500;
 
+/**
+ * Bounds for the screenshot copy returned inline to the model (the saved file stays
+ * full resolution). The API resamples anything past ~1568px or ~1.15MP itself, which
+ * would silently break the reported coordinate scale - see handlers/capture.js.
+ */
+export const INLINE_SHOT_MAX_EDGE = 1568;
+export const INLINE_SHOT_MAX_PIXELS = 1_150_000;
+
 /** Path (extension-root relative) of the script injected into pages. */
 export const WALKER_FILE = "src/page/walker.js";
 

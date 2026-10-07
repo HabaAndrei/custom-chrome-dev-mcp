@@ -5,8 +5,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { defineSuite } from "../lib/runner.js";
-import { equals, isAtLeast, isFalse, isPng, isTrue, isWebm, rejects } from "../lib/assert.js";
+import { equals, isAtLeast, isFalse, isJpeg, isPng, isTrue, isWebm, rejects } from "../lib/assert.js";
 import { sleep } from "../lib/wait.js";
+import { INLINE_SHOT_MAX_EDGE, INLINE_SHOT_MAX_PIXELS } from "../../extension/src/config.js";
 
 const decode = (b64) => Buffer.from(b64, "base64");
 
@@ -30,6 +31,21 @@ export default defineSuite({
       isAtLeast(shot.devicePixelRatio, 1, "devicePixelRatio");
       if (!shot.cssViewport) throw new Error("screenshot returned no cssViewport");
       return `dpr=${shot.devicePixelRatio}`;
+    },
+
+    "screenshot's inline copy stays within the API image limits": async ({ call, tab }) => {
+      const shot = await call("screenshot", { format: "png", tabId: tab });
+      // The full-res capture can pass 5MB; inlining it breaks every later API request.
+      if (!shot.inline) throw new Error("screenshot returned no inline copy");
+      const { b64, mimeType, width, height, scale } = shot.inline;
+      equals(mimeType, "image/jpeg", "inline mimeType");
+      isJpeg(decode(b64), "inline copy");
+      isTrue(Math.max(width, height) <= INLINE_SHOT_MAX_EDGE, `inline edge ${Math.max(width, height)} <= ${INLINE_SHOT_MAX_EDGE}`);
+      isTrue(width * height <= INLINE_SHOT_MAX_PIXELS, `inline area ${width * height} <= ${INLINE_SHOT_MAX_PIXELS}`);
+      // Never larger than CSS size, and the scale must map it back onto the viewport.
+      isTrue(width <= shot.cssViewport.width, `inline width ${width} <= css width ${shot.cssViewport.width}`);
+      isTrue(Math.abs(width / scale - shot.cssViewport.width) <= 1, "inline.scale maps back to css width");
+      return `${width}x${height} ${Math.round(b64.length / 1024)}KB b64, scale=${scale.toFixed(3)}`;
     },
 
     "fullPageScreenshot captures beyond the viewport": async ({ call, tab, artifacts }) => {

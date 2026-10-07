@@ -221,8 +221,8 @@ lsof -nP -iTCP:9876 -sTCP:LISTEN
 ```
 
 Then ask your client for **`listTabs`**. A JSON array of your open tabs means every
-link works. Follow it with **`screenshot`** - a PNG lands in `~/Downloads` *and* comes
-back inline.
+link works. Follow it with **`screenshot`** - a full-res PNG lands in `~/Downloads` *and*
+a downscaled JPEG comes back inline.
 
 For the extension's own console: `chrome://extensions` → **Custom-chrome-dev-mcp** →
 **service worker** → **Inspect**. That is where extension-side errors surface; they
@@ -394,7 +394,7 @@ Saved into the capture directory (`~/Downloads` by default - see
 
 | Tool | Args | Description |
 | --- | --- | --- |
-| `screenshot` | `path?`, `format?`, `tabId?` | Visible viewport as PNG/JPEG - **saved to disk and returned inline** with `{devicePixelRatio, cssViewport}`, so the model sees it in one call. |
+| `screenshot` | `path?`, `format?`, `tabId?` | Visible viewport - **full-res PNG/JPEG saved to disk, plus a downscaled JPEG returned inline** (≤1568px, ≤1.15MP, never above CSS size) with `{inline: {width, height, scale}, devicePixelRatio, cssViewport}`, so the model sees it in one call. `cssX = inlineX / inline.scale`. The inline copy is bounded because a device-pixel PNG can exceed the API's image limits and break every later request in the conversation. |
 | `fullPageScreenshot` | `path?`, `tabId?` | The **entire scrollable page** beyond the viewport, via CDP. |
 | `record` | `action`, `path?`, `tabId?` | `start` / `stop` / `status` tab recording → `.webm`. Fully MCP-driven - **no toolbar click or user gesture needed**. Records the **tab**, not the desktop. |
 
@@ -430,7 +430,7 @@ person rather than a script. Point your client at any page and ask for:
 2. `realClick {ref:"e3"}` - a trusted click. The tab grows a yellow *"being debugged"*
    banner; that is the CDP attach, and it is meant to be visible.
 3. `evaluate {expression:"'ok'"}` - page-context JS, bypassing the content-script CSP.
-4. `screenshot` - a PNG in your capture directory *and* returned inline.
+4. `screenshot` - a full-res PNG in your capture directory *and* a downscaled JPEG returned inline.
 5. `record {action:"start"}` … `record {action:"stop", path:"clip.webm"}` - a `.webm`
    of the tab. No toolbar click and no user gesture needed; the toolbar icon is inert
    by design and starts nothing.

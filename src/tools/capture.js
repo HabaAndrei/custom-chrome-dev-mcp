@@ -13,16 +13,21 @@ import { asText } from "./schemas.js";
 export function registerCaptureTools(server) {
   server.tool(
     "screenshot",
-    `Screenshot the visible viewport, saved under ${CAPTURE_DIR} and returned inline with {devicePixelRatio, cssViewport} (cssX = screenshotX / devicePixelRatio) - one call, no file read needed. Use fullPageScreenshot for the whole scrollable page. path is a filename or path inside that folder.`,
+    `Screenshot the visible viewport - one call, no file read needed. The full-res file is saved under ${CAPTURE_DIR}; a downscaled JPEG comes back inline with {inline: {width, height, scale}, devicePixelRatio, cssViewport} (cssX = inlineX / inline.scale; for the saved file, cssX = fileX / devicePixelRatio). Use fullPageScreenshot for the whole scrollable page. path is a filename or path inside that folder.`,
     { path: z.string().optional(), format: z.enum(["png", "jpeg"]).optional(), tabId: z.number().optional() },
     async ({ path, format, tabId }) => {
       const res = await call("screenshot", { format: format || "png", tabId });
-      const isJpeg = format === "jpeg";
-      const written = writeCapture(path, isJpeg ? ".jpg" : ".png", res.b64);
+      const written = writeCapture(path, format === "jpeg" ? ".jpg" : ".png", res.b64);
+      const info = { ...written, devicePixelRatio: res.devicePixelRatio, cssViewport: res.cssViewport };
+
+      // Never inline the full-res capture: device-pixel PNGs can exceed the API's image
+      // limits and then break every later request in the conversation.
+      const { inline } = res;
+      if (!inline) return asText({ ...info, inline: "unavailable - read the saved file" });
       return {
         content: [
-          { type: "image", data: res.b64, mimeType: isJpeg ? "image/jpeg" : "image/png" },
-          { type: "text", text: JSON.stringify({ ...written, devicePixelRatio: res.devicePixelRatio, cssViewport: res.cssViewport }) },
+          { type: "image", data: inline.b64, mimeType: inline.mimeType },
+          { type: "text", text: JSON.stringify({ ...info, inline: { width: inline.width, height: inline.height, scale: inline.scale } }) },
         ],
       };
     },

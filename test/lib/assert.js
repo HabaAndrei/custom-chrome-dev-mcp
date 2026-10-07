@@ -69,6 +69,12 @@ export function isPng(buf, what = "image") {
   isAtLeast(buf.length, 1000, `${what} size`);
 }
 
+export function isJpeg(buf, what = "image") {
+  if (!(buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff))
+    fail(`${what}: not a JPEG (magic ${[...buf.slice(0, 3)].map((b) => b.toString(16)).join(" ")})`);
+  isAtLeast(buf.length, 1000, `${what} size`);
+}
+
 export function isWebm(buf, what = "video") {
   if (!(buf[0] === 0x1a && buf[1] === 0x45 && buf[2] === 0xdf && buf[3] === 0xa3))
     fail(`${what}: not a WebM (magic ${[...buf.slice(0, 4)].map((b) => b.toString(16)).join(" ")})`);
