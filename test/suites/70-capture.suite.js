@@ -42,10 +42,45 @@ export default defineSuite({
       isJpeg(decode(b64), "inline copy");
       isTrue(Math.max(width, height) <= INLINE_SHOT_MAX_EDGE, `inline edge ${Math.max(width, height)} <= ${INLINE_SHOT_MAX_EDGE}`);
       isTrue(width * height <= INLINE_SHOT_MAX_PIXELS, `inline area ${width * height} <= ${INLINE_SHOT_MAX_PIXELS}`);
-      // Never larger than CSS size, and the scale must map it back onto the viewport.
+      // Never larger than on-screen size (= CSS size, unzoomed), and the scale must map it back.
       isTrue(width <= shot.cssViewport.width, `inline width ${width} <= css width ${shot.cssViewport.width}`);
       isTrue(Math.abs(width / scale - shot.cssViewport.width) <= 1, "inline.scale maps back to css width");
       return `${width}x${height} ${Math.round(b64.length / 1024)}KB b64, scale=${scale.toFixed(3)}`;
+    },
+
+    "screenshot survives Chrome's 2-per-second capture quota": async ({ call, tab }) => {
+      // captureVisibleTab rejects a third call within a second; parallel calls must still land.
+      const shots = await Promise.all([1, 2, 3, 4].map(() => call("screenshot", { tabId: tab })));
+      for (const shot of shots) isPng(decode(shot.b64), "quota-burst screenshot");
+      return `${shots.length} parallel`;
+    },
+
+    "screenshot refuses a tab that is not showing": async ({ call, tab, fixtureUrl }) => {
+      // captureVisibleTab grabs the window's visible tab - a background tabId must not
+      // silently return another page's pixels.
+      const { created } = await call("newtab", { url: `${fixtureUrl}/` });
+      try {
+        await rejects(() => call("screenshot", { tabId: tab }), "not the visible tab", "background screenshot");
+      } finally {
+        await call("closeTab", { tabId: created }).catch(() => {});
+        await call("activateTab", { tabId: tab }).catch(() => {});
+      }
+      return "refused";
+    },
+
+    "screenshot under setViewport emulation stays full size and reports no scale": async ({ call, tab }) => {
+      const plain = await call("screenshot", { tabId: tab });
+      await call("setViewport", { width: 400, height: 800, deviceScaleFactor: 3, mobile: true, tabId: tab });
+      try {
+        const emulated = await call("screenshot", { tabId: tab });
+        // Emulation changes the page's devicePixelRatio, not what gets captured - so the
+        // inline copy must not shrink, and no single scale maps the image back.
+        equals(emulated.inline.width, plain.inline.width, "inline width under emulation");
+        equals(emulated.inline.scale, null, "inline.scale under emulation");
+        return `${emulated.inline.width}px, scale=null`;
+      } finally {
+        await call("detach", { tabId: tab }).catch(() => {}); // dropping the CDP session clears emulation
+      }
     },
 
     "fullPageScreenshot captures beyond the viewport": async ({ call, tab, artifacts }) => {

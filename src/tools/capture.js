@@ -13,7 +13,7 @@ import { asText } from "./schemas.js";
 export function registerCaptureTools(server) {
   server.tool(
     "screenshot",
-    `Screenshot the visible viewport - one call, no file read needed. The full-res file is saved under ${CAPTURE_DIR}; a downscaled JPEG comes back inline with {inline: {width, height, scale}, devicePixelRatio, cssViewport} (cssX = inlineX / inline.scale; for the saved file, cssX = fileX / devicePixelRatio). Use fullPageScreenshot for the whole scrollable page. path is a filename or path inside that folder.`,
+    `Screenshot the visible viewport - one call, no file read needed. The full-res file is saved under ${CAPTURE_DIR}; a downscaled JPEG comes back inline with {inline: {width, height, scale}, devicePixelRatio, cssViewport} (cssX = inlineX / inline.scale; for the saved file, cssX = fileX / devicePixelRatio). scale is null under setViewport emulation, where no single factor maps the image back. The tab must be the one showing in its window (activateTab a background tab first). Use fullPageScreenshot for the whole scrollable page. path is a filename or path inside that folder.`,
     { path: z.string().optional(), format: z.enum(["png", "jpeg"]).optional(), tabId: z.number().optional() },
     async ({ path, format, tabId }) => {
       const res = await call("screenshot", { format: format || "png", tabId });

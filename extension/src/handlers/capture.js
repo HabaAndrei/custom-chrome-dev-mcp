@@ -21,14 +21,17 @@ function toB64(buf) {
 // The capture is in device pixels (3024x1720 on a 2x Retina, 3840+ wide on a 4K
 // Windows screen), and a PNG of that can pass 5MB. Inline, that is more than the API
 // accepts - and once it is in the conversation every later request carries it. So the
-// model gets a JPEG no larger than CSS size and within the API's no-resample bounds;
-// `scale` is inline px per CSS px (cssX = inlineX / scale).
-async function inlineCopy(dataUrl, meta) {
+// model gets a JPEG no larger than the tab's on-screen size and within the API's
+// no-resample bounds. On-screen size comes from the tab, not the page's
+// devicePixelRatio: CDP emulation (setViewport) changes that without changing what
+// captureVisibleTab grabs.
+async function inlineCopy(dataUrl, tab, meta) {
   const bitmap = await createImageBitmap(await (await fetch(dataUrl)).blob());
   const { width, height } = bitmap;
+  const onScreenWidth = tab.width || width / (meta.devicePixelRatio || 1);
   const factor = Math.min(
     1,
-    1 / (meta.devicePixelRatio || 1),
+    onScreenWidth / width,
     INLINE_SHOT_MAX_EDGE / Math.max(width, height),
     Math.sqrt(INLINE_SHOT_MAX_PIXELS / (width * height)),
   );
@@ -42,21 +45,42 @@ async function inlineCopy(dataUrl, meta) {
   bitmap.close();
 
   const blob = await canvas.convertToBlob({ type: "image/jpeg", quality: 0.8 });
-  const cssWidth = meta.cssViewport?.width;
+
+  // `scale` is inline px per CSS px (cssX = inlineX / scale), valid only while the
+  // capture IS the CSS viewport. Under emulation the page is drawn into part of the
+  // window at another size and no single factor maps it back - null beats a wrong number.
+  const { devicePixelRatio: dpr, cssViewport } = meta;
+  const mapped = dpr && cssViewport && Math.abs(cssViewport.width * dpr - width) <= Math.ceil(dpr);
   return {
     b64: toB64(await blob.arrayBuffer()),
     mimeType: "image/jpeg",
     width: w,
     height: h,
-    scale: cssWidth ? w / cssWidth : null,
+    scale: mapped ? w / cssViewport.width : null,
   };
+}
+
+// Chrome allows only 2 captureVisibleTab calls per second, so back-to-back screenshots
+// (or parallel tool calls) fail outright. Wait out the window and retry instead.
+async function captureVisible(windowId, format) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await chrome.tabs.captureVisibleTab(windowId, { format });
+    } catch (err) {
+      if (attempt >= 3 || !/MAX_CAPTURE_VISIBLE_TAB_CALLS_PER_SECOND/.test(err?.message)) throw err;
+      await new Promise((r) => setTimeout(r, 600));
+    }
+  }
 }
 
 export const captureHandlers = {
   async screenshot(a = {}) {
     const format = a.format || "png";
     const tab = await resolveTab(a, META);
-    const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, { format });
+    // captureVisibleTab grabs whatever tab is showing in the window, not the one asked
+    // for - refuse rather than hand back (possibly sensitive) pixels from another page.
+    if (!tab.active) throw new Error(`tab ${tab.id} is not the visible tab in its window - activateTab it first`);
+    const dataUrl = await captureVisible(tab.windowId, format);
 
     // devicePixelRatio + CSS viewport let callers convert screenshot pixels (device px)
     // to the CSS px realClick/x,y use: cssX = screenshotX / devicePixelRatio.
@@ -66,7 +90,7 @@ export const captureHandlers = {
     // b64 is the full-res file for disk; only `inline` is ever shown to the model, and
     // the server sends no image at all if it could not be made.
     let inline = null;
-    try { inline = await inlineCopy(dataUrl, meta); } catch {}
+    try { inline = await inlineCopy(dataUrl, tab, meta); } catch {}
 
     return { b64: dataUrl.split(",")[1], format, inline, ...meta };
   },
