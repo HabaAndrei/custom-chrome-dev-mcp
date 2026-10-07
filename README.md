@@ -703,6 +703,3 @@ endorsed by, or supported by Google.
 
 Use it, fork it, ship it. The only condition is that the copyright notice and the
 permission notice travel with any substantial copy.
-
-
-[![M8ven Verified](https://m8ven.ai/badge/mcp/habaandrei-custom-chrome-dev-mcp-lcatl0?variant=verified)](https://m8ven.ai/mcp/habaandrei-custom-chrome-dev-mcp-lcatl0)
